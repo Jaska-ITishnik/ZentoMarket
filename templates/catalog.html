@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Katalog</div>
+        <h1 class="page-title">Mahsulotlar katalogi</h1>
+        <div class="subcategories" style="grid-template-columns:repeat(4,1fr)"><a class="subcat"
+                                                                                  href="{% url 'apps:category' %}"><b>📱</b>Elektronika<small
+                style="display:block;color:var(--muted)">12 840 mahsulot</small></a><a class="subcat"><b>🧺</b>Maishiy
+            texnika<small style="display:block;color:var(--muted)">8 430 mahsulot</small></a><a class="subcat"><b>👗</b>Kiyim<small
+                style="display:block;color:var(--muted)">42 150 mahsulot</small></a><a
+                class="subcat"><b>👟</b>Poyabzal<small style="display:block;color:var(--muted)">18 210
+            mahsulot</small></a><a class="subcat"><b>🏠</b>Uy va bog‘<small style="display:block;color:var(--muted)">31
+            090 mahsulot</small></a><a class="subcat"><b>💄</b>Go‘zallik<small style="display:block;color:var(--muted)">22
+            780 mahsulot</small></a><a class="subcat"><b>🧸</b>Bolalar<small style="display:block;color:var(--muted)">15
+            660 mahsulot</small></a><a class="subcat"><b>🥫</b>Oziq-ovqat<small style="display:block;color:var(--muted)">7
+            920 mahsulot</small></a><a class="subcat"><b>🔧</b>Avto va asboblar</a><a class="subcat"><b>⚽</b>Sport</a><a
+                class="subcat"><b>📚</b>Kitoblar</a><a class="subcat"><b>🐾</b>Hayvonlar uchun</a></div>
+        <section class="section wide-banner"><h2>Kerakli hamma narsa — bir katalogda</h2>
+            <p>100 000 dan ortiq mahsulot va minglab ishonchli sotuvchilar.</p></section>
+    </div>
+</main>
+{% endblock %}

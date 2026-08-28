@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs">Bosh sahifa / Shaxsiy kabinet</div>
+        <h1 class="page-title">Salom, Aziza 👋</h1>
+        <div class="dashboard">
+            {% include "includes/account_nav.html" %}
+            <section>
+                <div class="stats">
+                    <div class="stat">Faol buyurtma<b>1</b></div>
+                    <div class="stat">Sevimlilar<b>4</b></div>
+                    <div class="stat">Bonuslar<b>28 500</b></div>
+                    <div class="stat">Promokodlar<b>3</b></div>
+                </div>
+                <div class="section-head" style="margin-top:30px"><h2>Joriy buyurtma</h2><a href="{% url 'apps:orders' %}">Barchasi
+                    →</a></div>
+                <article class="order-card">
+                    <div class="order-top">
+                        <div><b>№ ZT-108248</b><br><small>7-avgust, 2026 · 2 ta mahsulot</small></div>
+                        <span class="status">Punktga yo‘lda</span></div>
+                    <p>Samsung Galaxy A55 · Sony quloqchin</p><b>5 378 000 so‘m</b> <a class="btn btn-soft"
+                                                                                       href="{% url 'apps:order-detail' %}"
+                                                                                       style="float:right">Kuzatish</a>
+                </article>
+                <section class="wide-banner" style="margin-top:25px;min-height:180px"><h2 style="font-size:27px">28 500
+                    bonus sarflashga tayyor</h2>
+                    <p>Keyingi xaridingizda ishlating.</p><a class="btn btn-light" href="{% url 'apps:catalog' %}">Xarid qilish</a>
+                </section>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs">Bosh sahifa / Sevimlilar</div>
+        <h1 class="page-title">Sevimli mahsulotlar</h1>
+        <div class="toolbar"><span>4 ta mahsulot</span>
+            <button class="chip">Barchasini savatga</button>
+        </div>
+        <div class="product-grid">
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart" style="color:var(--hot)">♥</button>
+                </div>
+                <div class="product-body"><p class="product-title">Samsung Galaxy A55 5G 8/256 GB</p><span
+                        class="rating">★ 4.9 (428)</span><span class="installment">299 000 × 12 oy</span><b
+                        class="price">3 589 000 so‘m</b>
+                    <button class="cart-fab" data-cart>🛒</button>
+                </div>
+            </article>
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart" style="color:var(--hot)">♥</button>
+                </div>
+                <div class="product-body"><p class="product-title">Sony simsiz quloqchin ANC</p><span class="rating">★ 4.9 (814)</span><span
+                        class="installment">149 000 × 12 oy</span><b class="price">1 789 000 so‘m</b>
+                    <button class="cart-fab" data-cart>🛒</button>
+                </div>
+            </article>
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart" style="color:var(--hot)">♥</button>
+                </div>
+                <div class="product-body"><p class="product-title">Robot changyutgich, nam tozalash</p><span
+                        class="rating">★ 4.8 (311)</span><span class="installment">199 000 × 12 oy</span><b
+                        class="price">2 389 000 so‘m</b>
+                    <button class="cart-fab" data-cart>🛒</button>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+{% endblock %}

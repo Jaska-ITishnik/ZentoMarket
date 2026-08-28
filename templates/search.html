@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Qidiruv</div>
+        <h1 class="page-title">“Simsiz quloqchin” bo‘yicha natijalar</h1>
+        <p>1 248 ta mahsulot topildi</p>
+        <div class="toolbar">
+            <div>
+                <button class="chip">Bluetooth 5.3</button>
+                <button class="chip">ANC</button>
+                <button class="chip">Apple</button>
+                <button class="chip">Samsung</button>
+            </div>
+            <select class="field" style="width:auto">
+                <option>Ommabopligi bo‘yicha</option>
+                <option>Narxi bo‘yicha</option>
+            </select></div>
+        <div class="product-grid">
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart">♡</button>
+                </div>
+                <div class="product-body"><a href="{% url 'apps:product' %}"><p class="product-title">Sony WH-1000XM5 simsiz
+                    quloqchin</p></a><span class="rating">★ 4.9 (814)</span><span
+                        class="installment">149 000 × 12 oy</span><b class="price">1 789 000 so‘m</b></div>
+            </article>
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart">♡</button>
+                </div>
+                <div class="product-body"><p class="product-title">Apple AirPods Pro 2 USB-C</p><span class="rating">★ 4.9 (1 402)</span><span
+                        class="installment">249 000 × 12 oy</span><b class="price">2 989 000 so‘m</b></div>
+            </article>
+            <article class="product">
+                <div class="product-img"><img
+                        src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=500&q=80">
+                    <button class="heart">♡</button>
+                </div>
+                <div class="product-body"><p class="product-title">JBL Tune Buds, qora</p><span class="rating">★ 4.7 (620)</span><span
+                        class="installment">49 000 × 12 oy</span><b class="price">589 000 so‘m</b></div>
+            </article>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <section class="hero" style="background:linear-gradient(120deg,#271354,#7548ee);color:#fff">
+            <div class="hero-copy"><span class="tag" style="background:var(--yellow);color:#222">Hamkorlar uchun</span>
+                <h1>Millionlab xaridorlarga soting</h1>
+                <p style="color:#e4dcff">Do‘kon oching, mahsulotlarni boshqaring va Zento logistikasi bilan butun
+                    O‘zbekiston bo‘ylab yetkazing.</p><a class="btn btn-light" href="#form">Ariza qoldirish</a></div>
+        </section>
+        <section class="section">
+            <div class="stats">
+                <div class="stat">Komissiya<b>5% dan</b></div>
+                <div class="stat">Ro‘yxatdan o‘tish<b>Bepul</b></div>
+                <div class="stat">To‘lovlar<b>Har hafta</b></div>
+                <div class="stat">Yordam<b>24/7</b></div>
+            </div>
+        </section>
+        <section id="form" class="form-section" style="max-width:750px;margin:40px auto"><h2>Sotuvchi bo‘lish uchun
+            ariza</h2>
+            <div class="form-grid">
+                <div><label>Ism va familiya</label><input class="field"></div>
+                <div><label>Telefon</label><input class="field" placeholder="+998"></div>
+                <div class="full"><label>Kompaniya yoki do‘kon nomi</label><input class="field"></div>
+                <div><label>Mahsulot kategoriyasi</label><select class="field">
+                    <option>Elektronika</option>
+                    <option>Kiyim</option>
+                    <option>Uy-ro‘zg‘or</option>
+                </select></div>
+                <div><label>Taxminiy mahsulot soni</label><input class="field" type="number"></div>
+            </div>
+            <button class="btn" style="margin-top:15px">Arizani yuborish</button>
+            <p><small>Frontend demo — ariza backend ulanmaguncha yuborilmaydi.</small></p></section>
+    </div>
+</main>
+{% endblock %}

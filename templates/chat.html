@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container"><h1 class="page-title">Yordam va sotuvchi bilan chat</h1>
+        <div class="chat">
+            <aside class="chats"><b>Suhbatlar</b>
+                <div class="chat-contact"><b>Zento yordam xizmati</b><br><small>● Onlayn · 1 yangi xabar</small></div>
+                <div class="chat-contact"><b>Zento Electronics</b><br><small>Samsung Galaxy A55</small></div>
+                <div class="chat-contact"><b>Delivery team</b><br><small>№ ZT-108248</small></div>
+            </aside>
+            <section class="chat-main">
+                <header class="chat-head"><b>Madina · Marketplace administratori</b><br><small
+                        style="color:var(--green)">● Onlayn, odatda 2 daqiqada javob beradi</small></header>
+                <div class="messages">
+                    <div class="msg">Assalomu alaykum, Aziza! Buyurtmangiz bo‘yicha qanday yordam bera olaman?</div>
+                    <div class="msg me">Buyurtmam punktga qachon yetib keladi?</div>
+                    <div class="msg">№ ZT-108248 buyurtmangiz yo‘lda. Ertaga soat 12:00 dan keyin olish mumkin. Tayyor
+                        bo‘lganda xabar yuboramiz.
+                    </div>
+                    <div class="msg me">Rahmat. Olib ketish uchun nima kerak?</div>
+                    <div class="msg">Buyurtma kodi va telefon raqamingiz yetarli 😊</div>
+                </div>
+                <form class="chat-form">
+                    <button type="button" class="btn btn-outline">＋</button>
+                    <input class="field" placeholder="Xabar yozing...">
+                    <button class="btn">Yuborish</button>
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

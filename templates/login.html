@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="auth-wrap">
+    <section class="auth-card"><h1>Xush kelibsiz!</h1>
+        <p style="color:var(--muted)">Email va parol orqali kiring. Username kerak emas.</p>
+        <form><label>Email</label><input class="field" type="email" placeholder="siz@example.com"><label
+                style="display:block;margin-top:14px">Parol</label><input class="field" type="password"
+                                                                          placeholder="Kamida 8 ta belgi">
+            <div class="sum-line"><label><input type="checkbox"> Eslab qolish</label><a href="{% url 'apps:forgot-password' %}"
+                                                                                        style="color:var(--primary)">Parolni
+                unutdingizmi?</a></div>
+            <a class="btn" href="{% url 'apps:account' %}" style="width:100%;margin-top:10px">Kirish</a></form>
+        <div class="divider">yoki</div>
+        <button class="btn btn-outline" style="width:100%">G Google orqali davom etish</button>
+        <p style="text-align:center">Hisobingiz yo‘qmi? <a href="{% url 'apps:signup' %}"
+                                                           style="color:var(--primary);font-weight:700">Ro‘yxatdan
+            o‘ting</a></p><small>Frontend demo: ma’lumotlar hech qayerga yuborilmaydi.</small></section>
+</main>
+{% endblock %}

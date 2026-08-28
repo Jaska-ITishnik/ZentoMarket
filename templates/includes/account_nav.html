@@ -1,0 +1,10 @@
+<aside class="account-nav">
+    <a{% if active_page == "account" %} class="active"{% endif %} href="{% url 'apps:account' %}">⌂ Umumiy</a>
+    <a{% if active_page == "orders" %} class="active"{% endif %} href="{% url 'apps:orders' %}">📦 Buyurtmalar</a>
+    <a{% if active_page == "wishlist" %} class="active"{% endif %} href="{% url 'apps:wishlist' %}">♡ Sevimlilar</a>
+    <a{% if active_page == "addresses" %} class="active"{% endif %} href="{% url 'apps:addresses' %}">📍 Manzillar</a>
+    <a{% if active_page == "notifications" %} class="active"{% endif %} href="{% url 'apps:notifications' %}">🔔 Xabarnomalar</a>
+    <a{% if active_page == "chat" %} class="active"{% endif %} href="{% url 'apps:chat' %}">💬 Yordam chat</a>
+    <a href="#">⚙ Shaxsiy ma’lumotlar</a>
+    <a href="{% url 'apps:login' %}">↪ Chiqish</a>
+</aside>

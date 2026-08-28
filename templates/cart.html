@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs">Bosh sahifa / Savat</div>
+        <h1 class="page-title">Savat</h1>
+        <div class="cart-layout">
+            <section>
+                <div class="seller-box"><label><input type="checkbox" checked> <b>Zento Electronics</b></label>
+                    <article class="cart-item"><input type="checkbox" checked><img
+                            src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=300&q=80">
+                        <div><b>Samsung Galaxy A55 5G, 8/256 GB</b>
+                            <p>Rang: to‘q ko‘k · Ertaga yetkazamiz</p>
+                            <div class="qty" data-qty>
+                                <button data-step="down">−</button>
+                                <span>1</span>
+                                <button data-step="up">+</button>
+                            </div>
+                            <a href="#" style="color:var(--muted)">O‘chirish</a></div>
+                        <strong>3 589 000 so‘m</strong></article>
+                    <article class="cart-item"><input type="checkbox" checked><img
+                            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80">
+                        <div><b>Sony simsiz quloqchin, qora</b>
+                            <p>Ertaga yetkazamiz</p>
+                            <div class="qty" data-qty>
+                                <button data-step="down">−</button>
+                                <span>1</span>
+                                <button data-step="up">+</button>
+                            </div>
+                            <a href="#" style="color:var(--muted)">O‘chirish</a></div>
+                        <strong>1 789 000 so‘m</strong></article>
+                </div>
+            </section>
+            <aside class="summary"><h2 style="margin-top:0">Buyurtmangiz</h2>
+                <div class="sum-line"><span>Mahsulotlar (2)</span><span>5 378 000 so‘m</span></div>
+                <div class="sum-line"><span>Yetkazib berish</span><b style="color:var(--green)">Bepul</b></div>
+                <div class="promo"><input class="field" placeholder="Promokod">
+                    <button class="btn btn-soft">Qo‘llash</button>
+                </div>
+                <div class="sum-line sum-total"><span>Jami</span><span>5 378 000 so‘m</span></div>
+                <p class="installment" style="display:block">448 167 so‘mdan × 12 oy</p><a class="btn"
+                                                                                           href="{% url 'apps:checkout' %}"
+                                                                                           style="width:100%">Rasmiylashtirish</a>
+            </aside>
+        </div>
+    </div>
+</main>
+{% endblock %}

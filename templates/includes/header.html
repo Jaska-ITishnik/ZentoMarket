@@ -1,0 +1,34 @@
+<header class="header">
+    <div class="container header-main">
+        {% if not compact_layout %}<button class="mobile-menu" type="button">☰</button>{% endif %}
+        <a class="logo" href="{% url 'apps:index' %}">zento<i>.</i></a>
+        {% if not compact_layout %}
+            <a class="catalog-btn" href="{% url 'apps:catalog' %}">☰ Katalog</a>
+            <form class="search" action="{% url 'apps:search' %}" method="get">
+                <input name="q" value="{{ request.GET.q }}" placeholder="Mahsulotlar va turkumlarni qidiring">
+                <button type="submit" aria-label="Qidirish">⌕</button>
+            </form>
+            <div class="head-actions">
+                <a class="head-link" href="{% url 'apps:login' %}"><span>♙</span><small>Kirish</small></a>
+                <a class="head-link" href="{% url 'apps:compare' %}"><span>⇄</span><small>Taqqoslash</small></a>
+                <a class="head-link" href="{% url 'apps:wishlist' %}"><span>♡</span><small>Sevimlilar</small></a>
+                <a class="head-link" href="{% url 'apps:cart' %}">
+                    <span>🛒</span><small>Savat</small><b class="counter" data-cart-count>2</b>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% if not compact_layout %}
+        <nav class="container category-nav">
+            <a href="{% url 'apps:category' %}">🔥 Haftalik chegirmalar</a>
+            <a href="{% url 'apps:category' %}">Elektronika</a>
+            <a href="{% url 'apps:category' %}">Maishiy texnika</a>
+            <a href="{% url 'apps:category' %}">Kiyim</a>
+            <a href="{% url 'apps:category' %}">Poyabzal</a>
+            <a href="{% url 'apps:category' %}">Uy-ro‘zg‘or</a>
+            <a href="{% url 'apps:category' %}">Go‘zallik</a>
+            <a href="{% url 'apps:category' %}">Bolalar</a>
+            <a href="{% url 'apps:catalog' %}">Yana ▾</a>
+        </nav>
+    {% endif %}
+</header>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container"><h1 class="page-title">Buyurtmalarim</h1>
+        <div class="dashboard">
+            {% include "includes/account_nav.html" %}
+            <section>
+                <div class="toolbar">
+                    <div>
+                        <button class="chip">Barchasi</button>
+                        <button class="chip">Faol</button>
+                        <button class="chip">Yakunlangan</button>
+                    </div>
+                    <input class="field" style="width:240px" placeholder="Buyurtma raqami"></div>
+                <article class="order-card">
+                    <div class="order-top">
+                        <div><b>№ ZT-108248</b><br><small>7-avgust, 2026</small></div>
+                        <span class="status">Punktga yo‘lda</span></div>
+                    <p>2 ta mahsulot · 5 378 000 so‘m</p><a class="btn btn-soft" href="{% url 'apps:order-detail' %}">Batafsil</a>
+                </article>
+                <article class="order-card">
+                    <div class="order-top">
+                        <div><b>№ ZT-104031</b><br><small>21-iyul, 2026</small></div>
+                        <span class="status">Topshirildi</span></div>
+                    <p>Robot changyutgich · 2 389 000 so‘m</p>
+                    <button class="btn btn-outline">Qayta xarid qilish</button>
+                    <button class="btn btn-outline">Sharh qoldirish</button>
+                </article>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

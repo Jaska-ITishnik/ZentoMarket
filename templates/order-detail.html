@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container" style="max-width:900px">
+        <div class="seller-row">
+            <div><h1 class="page-title" style="margin-bottom:5px">Buyurtma № ZT-108248</h1>
+                <p>7-avgust, 2026 · 5 378 000 so‘m</p></div>
+            <span class="status">Punktga yo‘lda</span></div>
+        <section class="form-section"><h2>Yetkazib berish holati</h2>
+            <div style="display:flex;justify-content:space-between;text-align:center;gap:10px">
+                <div>✅<br><b>Qabul qilindi</b><br><small>7-avgust 09:12</small></div>
+                <div>✅<br><b>Yig‘ildi</b><br><small>7-avgust 13:40</small></div>
+                <div>🚚<br><b>Punktga yo‘lda</b><br><small>8-avgust 08:15</small></div>
+                <div>○<br><b>Olib ketish</b><br><small>Kutilmoqda</small></div>
+            </div>
+        </section>
+        <section class="form-section"><h2>Olib ketish manzili</h2>
+            <p><b>📍 Amir Temur ko‘chasi 108, Tashkent</b><br>Har kuni 09:00–21:00 · Saqlash muddati 5 kun</p><a
+                    href="{% url 'apps:pickup' %}">Xaritada ko‘rish →</a></section>
+        <section class="form-section"><h2>Mahsulotlar</h2>
+            <div class="cart-item" style="grid-template-columns:80px 1fr auto"><img
+                    src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=200&q=80">
+                <div>Samsung Galaxy A55<br><small>1 dona · Zento Electronics</small></div>
+                <b>3 589 000</b></div>
+            <div class="cart-item" style="grid-template-columns:80px 1fr auto"><img
+                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80">
+                <div>Sony simsiz quloqchin<br><small>1 dona · Zento Electronics</small></div>
+                <b>1 789 000</b></div>
+        </section>
+        <a class="btn btn-outline" href="{% url 'apps:chat' %}">Buyurtma bo‘yicha yordam</a></div>
+</main>
+{% endblock %}

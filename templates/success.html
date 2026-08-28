@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container" style="max-width:760px">
+        <div class="empty">
+            <div style="font-size:70px">✅</div>
+            <span class="tag" style="background:var(--green)">№ ZT-108248</span>
+            <h1 style="font-size:34px">Buyurtmangiz qabul qilindi!</h1>
+            <p>Aziza, mahsulotlar ertaga tanlangan topshirish punktiga yetib keladi. Holatini shaxsiy kabinetingizda
+                kuzatishingiz mumkin.</p>
+            <div style="margin:25px 0;padding:18px;background:#fff;border-radius:12px"><b>📍 Amir Temur ko‘chasi
+                108</b><br>Ertaga, 12:00 dan keyin
+            </div>
+            <a class="btn" href="{% url 'apps:order-detail' %}">Buyurtmani kuzatish</a> <a class="btn btn-outline"
+                                                                               href="{% url 'apps:index' %}">Bosh sahifa</a></div>
+    </div>
+</main>
+{% endblock %}

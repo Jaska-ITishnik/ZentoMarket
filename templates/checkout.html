@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs">Savat / Rasmiylashtirish</div>
+        <h1 class="page-title">Buyurtmani rasmiylashtirish</h1>
+        <div class="checkout-layout">
+            <form>
+                <section class="form-section"><h2>1. Qabul qiluvchi</h2>
+                    <div class="form-grid">
+                        <div><label>Ism</label><input class="field" value="Aziza"></div>
+                        <div><label>Familiya</label><input class="field" value="Karimova"></div>
+                        <div><label>Telefon</label><input class="field" value="+998 90 123 45 67"></div>
+                        <div><label>Email</label><input class="field" value="aziza@example.com"></div>
+                    </div>
+                </section>
+                <section class="form-section"><h2>2. Yetkazib berish usuli</h2><label class="seller-box"
+                                                                                      style="display:block;border-color:var(--primary)"><input
+                        type="radio" checked> <b>Topshirish punktidan olish — bepul</b><br><small>Toshkent, Amir Temur
+                    ko‘chasi 108 · Ertaga 12:00 dan</small></label><label class="seller-box"
+                                                                          style="display:block"><input type="radio"> <b>Kuryer
+                    orqali — 25 000 so‘m</b><br><small>Manzilingizga 1–2 kunda</small></label><a href="{% url 'apps:pickup' %}">Punktni
+                    xaritada o‘zgartirish →</a></section>
+                <section class="form-section"><h2>3. To‘lov usuli</h2><label class="seller-box"
+                                                                             style="display:block;border-color:var(--primary)"><input
+                        type="radio" checked> 💳 <b>Karta orqali onlayn</b></label><label class="seller-box"
+                                                                                         style="display:block"><input
+                        type="radio"> 🗓 <b>Zento Pay — 12 oyga</b></label>
+                    <div class="form-grid"><input class="field full"
+                                                  placeholder="Karta raqami: 0000 0000 0000 0000"><input class="field"
+                                                                                                         placeholder="MM/YY"><input
+                            class="field" placeholder="CVV"></div>
+                    <small>Bu frontend demo. Karta ma’lumoti saqlanmaydi va yuborilmaydi.</small></section>
+            </form>
+            <aside class="summary"><h2 style="margin-top:0">Buyurtma</h2>
+                <div class="sum-line"><span>2 ta mahsulot</span><span>5 378 000</span></div>
+                <div class="sum-line"><span>Yetkazib berish</span><span>0</span></div>
+                <div class="sum-line sum-total"><span>Jami</span><span>5 378 000 so‘m</span></div>
+                <a class="btn" href="{% url 'apps:success' %}" style="width:100%">Buyurtmani tasdiqlash</a>
+                <p style="font-size:11px;color:var(--muted)">Bosish orqali demo shartlariga rozilik bildirasiz.</p>
+            </aside>
+        </div>
+    </div>
+</main>
+{% endblock %}

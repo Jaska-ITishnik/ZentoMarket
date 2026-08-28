@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / <a href="{% url 'apps:catalog' %}">Elektronika</a> /
+            Smartfonlar
+        </div>
+        <h1 class="page-title">Smartfonlar va telefonlar</h1>
+        <div class="subcategories"><a class="subcat">📱 Smartfonlar</a><a class="subcat">⌚ Aqlli soatlar</a><a
+                class="subcat">🎧 Quloqchinlar</a><a class="subcat">🔌 Aksessuarlar</a><a class="subcat">💻 Planshetlar</a><a
+                class="subcat">🔋 Powerbanklar</a></div>
+        <div class="catalog-layout">
+            <aside class="sidebar"><h3>Yetkazib berish</h3><label class="check"><input type="checkbox"> 1
+                kunda</label><label class="check"><input type="checkbox"> Topshirish punktiga</label>
+                <h3>Narx, so‘m</h3>
+                <div class="price-inputs"><input class="field" placeholder="dan"><input class="field"
+                                                                                        placeholder="gacha"></div>
+                <h3>Brend</h3><label class="check"><input type="checkbox"> Samsung</label><label class="check"><input
+                        type="checkbox"> Apple</label><label class="check"><input type="checkbox"> Xiaomi</label><label
+                        class="check"><input type="checkbox"> Honor</label><label class="check"><input type="checkbox">
+                    Vivo</label>
+                <h3>Xotira</h3><label class="check"><input type="checkbox"> 128 GB</label><label class="check"><input
+                        type="checkbox"> 256 GB</label><label class="check"><input type="checkbox"> 512 GB</label>
+                <h3>Reyting</h3><label class="check"><input type="checkbox"> ★ 4.5 dan yuqori</label></aside>
+            <section>
+                <div class="toolbar"><b>2 846 mahsulot</b>
+                    <div class="toolbar-actions">
+                        <button class="chip">Ommabop</button>
+                        <button class="chip">Arzonroq</button>
+                        <button class="chip">Qimmatroq</button>
+                    </div>
+                </div>
+                <div class="product-grid" style="grid-template-columns:repeat(4,1fr)">
+                    <article class="product">
+                        <div class="product-img"><img
+                                src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80">
+                            <button class="heart">♡</button>
+                        </div>
+                        <div class="product-body"><a href="{% url 'apps:product' %}"><p class="product-title">Samsung Galaxy A55 5G
+                            8/256 GB</p></a><span class="rating">★ 4.9 <i class="review">(428)</i></span><span
+                                class="installment">299 000 × 12 oy</span><b class="price">3 589 000 so‘m</b>
+                            <button class="cart-fab" data-cart>🛒</button>
+                        </div>
+                    </article>
+                    <article class="product">
+                        <div class="product-img"><img
+                                src="https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?auto=format&fit=crop&w=500&q=80">
+                            <button class="heart">♡</button>
+                        </div>
+                        <div class="product-body"><p class="product-title">Apple iPhone 15 Pro 256 GB</p><span
+                                class="rating">★ 5.0 <i class="review">(604)</i></span><span class="installment">1 199 000 × 12 oy</span><b
+                                class="price">14 389 000 so‘m</b>
+                            <button class="cart-fab" data-cart>🛒</button>
+                        </div>
+                    </article>
+                    <article class="product">
+                        <div class="product-img"><img
+                                src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80"><span
+                                class="product-label">-16%</span>
+                            <button class="heart">♡</button>
+                        </div>
+                        <div class="product-body"><p class="product-title">Xiaomi Redmi Note 13 Pro 8/256 GB</p><span
+                                class="rating">★ 4.8 <i class="review">(912)</i></span><span class="installment">249 000 × 12 oy</span><b
+                                class="price">2 989 000 so‘m</b>
+                            <button class="cart-fab" data-cart>🛒</button>
+                        </div>
+                    </article>
+                    <article class="product">
+                        <div class="product-img"><img
+                                src="https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=500&q=80">
+                            <button class="heart">♡</button>
+                        </div>
+                        <div class="product-body"><p class="product-title">Honor 200 Lite 8/256 GB</p><span
+                                class="rating">★ 4.7 <i class="review">(205)</i></span><span class="installment">219 000 × 12 oy</span><b
+                                class="price">2 629 000 so‘m</b>
+                            <button class="cart-fab" data-cart>🛒</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

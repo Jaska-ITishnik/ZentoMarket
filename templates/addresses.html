@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container"><h1 class="page-title">Yetkazib berish manzillari</h1>
+        <div class="dashboard">
+            {% include "includes/account_nav.html" %}
+            <section>
+                <button class="btn">+ Yangi manzil</button>
+                <div class="seller-box">
+                    <div class="seller-row">
+                        <div><b>Uy · Asosiy</b>
+                            <p>Toshkent sh., Yunusobod tumani, Amir Temur ko‘chasi 108, 24-xonadon</p><small>Aziza
+                                Karimova · +998 90 123 45 67</small></div>
+                        <button class="btn btn-outline">Tahrirlash</button>
+                    </div>
+                </div>
+                <div class="seller-box">
+                    <div class="seller-row">
+                        <div><b>Ish</b>
+                            <p>Toshkent sh., Mirzo Ulug‘bek tumani, Buyuk Ipak Yo‘li 45</p><small>Dush–Juma,
+                                09:00–18:00</small></div>
+                        <button class="btn btn-outline">Tahrirlash</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+{% endblock %}

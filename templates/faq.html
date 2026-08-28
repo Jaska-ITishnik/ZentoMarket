@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container" style="max-width:900px"><h1 class="page-title">Yordam markazi</h1>
+        <div class="quick-grid" style="grid-template-columns:repeat(4,1fr)"><a class="quick">📦 Buyurtma</a><a
+                class="quick">🚚 Yetkazish</a><a class="quick">↩ Qaytarish</a><a class="quick">💳 To‘lov</a></div>
+        <h2>Ko‘p so‘raladigan savollar</h2>
+        <div class="faq open">
+            <button>Buyurtmani qanday rasmiylashtiraman?<span>＋</span></button>
+            <p>Mahsulotni savatga qo‘shing, yetkazib berish usulini va to‘lov turini tanlang, so‘ng tasdiqlang.</p>
+        </div>
+        <div class="faq">
+            <button>Buyurtma holatini qayerdan ko‘raman?<span>＋</span></button>
+            <p>Shaxsiy kabinetdagi “Buyurtmalar” bo‘limida har bir bosqich ko‘rinadi.</p></div>
+        <div class="faq">
+            <button>Mahsulotni qaytarish mumkinmi?<span>＋</span></button>
+            <p>Foydalanilmagan mahsulotni belgilangan muddat ichida punkt orqali qaytarish mumkin. Ayrim toifalarda
+                istisnolar bor.</p></div>
+        <div class="faq">
+            <button>Muddatli to‘lov qanday ishlaydi?<span>＋</span></button>
+            <p>Zento Pay tasdiqlangach, xarid summasi tanlangan muddatga teng qismlarga bo‘linadi.</p></div>
+        <div class="faq">
+            <button>Sotuvchi bilan qanday bog‘lanaman?<span>＋</span></button>
+            <p>Mahsulot yoki buyurtma sahifasidan chatni oching. Marketplace administratori ham yordam bera oladi.</p>
+        </div>
+        <div class="faq">
+            <button>Promokod nega ishlamadi?<span>＋</span></button>
+            <p>Amal qilish muddati, minimal summa va qatnashuvchi mahsulotlarni tekshiring.</p></div>
+        <div class="wide-banner" style="margin-top:40px;min-height:180px"><h2 style="font-size:26px">Javob
+            topilmadimi?</h2>
+            <p>Yordam administratori hozir onlayn.</p><a class="btn btn-light" href="{% url 'apps:chat' %}">Chatni boshlash</a>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="auth-wrap">
+    <section class="auth-card"><h1>Hisob yaratish</h1>
+        <p style="color:var(--muted)">Buyurtmalarni kuzating va sevimlilarni saqlang.</p>
+        <form>
+            <div class="form-grid">
+                <div><label>Ism</label><input class="field" placeholder="Aziza"></div>
+                <div><label>Familiya</label><input class="field" placeholder="Karimova"></div>
+                <div class="full"><label>Email</label><input class="field" type="email" placeholder="siz@example.com">
+                </div>
+                <div class="full"><label>Telefon</label><input class="field" type="tel" placeholder="+998 90 123 45 67">
+                </div>
+                <div class="full"><label>Parol</label><input class="field" type="password"
+                                                             placeholder="Kamida 8 ta belgi"></div>
+            </div>
+            <label class="check"><input type="checkbox"> Aksiya va chegirmalar haqida xabar olish</label><a class="btn"
+                                                                                                            href="{% url 'apps:account' %}"
+                                                                                                            style="width:100%">Ro‘yxatdan
+            o‘tish</a></form>
+        <p style="text-align:center">Hisobingiz bormi? <a href="{% url 'apps:login' %}"
+                                                          style="color:var(--primary);font-weight:700">Kirish</a></p>
+    </section>
+</main>
+{% endblock %}

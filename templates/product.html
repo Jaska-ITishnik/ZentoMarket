@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="main">
+    <div class="container">
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / <a href="{% url 'apps:category' %}">Smartfonlar</a> /
+            Samsung Galaxy A55
+        </div>
+        <div class="detail-grid">
+            <section class="gallery">
+                <div class="thumbs"><img
+                        src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=200&q=80"><img
+                        src="https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=200&q=80"><img
+                        src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=200&q=80">
+                </div>
+                <div class="main-image"><img
+                        src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=900&q=85"
+                        alt="Samsung Galaxy A55"></div>
+            </section>
+            <section class="detail"><span class="tag">Top sotuv</span>
+                <h1>Samsung Galaxy A55 5G, 8/256 GB, Dual SIM</h1>
+                <div><span class="rating">★ 4.9</span> · 428 sharh · 2 130 buyurtma
+                    <button class="heart" style="position:static;float:right">♡</button>
+                </div>
+                <div class="detail-price">3 589 000 so‘m</div>
+                <span class="installment">299 000 so‘mdan × 12 oy</span>
+                <p><b>Rang:</b> to‘q ko‘k</p>
+                <div class="option-row">
+                    <button class="option active">🔵 Ko‘k</button>
+                    <button class="option">⚫ Qora</button>
+                    <button class="option">🟣 Binafsha</button>
+                </div>
+                <p><b>Xotira:</b></p>
+                <div class="option-row">
+                    <button class="option">128 GB</button>
+                    <button class="option active">256 GB</button>
+                </div>
+                <div class="delivery-box"><b>📦 Ertaga yetkazib beramiz</b>
+                    <p style="margin-bottom:0">Kuryerga — bepul · Punktga — bepul</p></div>
+                <div class="seller-box">
+                    <div class="seller-row">
+                        <div><b>Zento Electronics</b><br><span class="rating">★ 4.9</span> · Ishonchli sotuvchi</div>
+                        <a href="{% url 'apps:seller' %}">Do‘konga →</a></div>
+                </div>
+                <div class="detail-actions">
+                    <button class="btn btn-soft" data-cart>Savatga qo‘shish</button>
+                    <a class="btn" href="{% url 'apps:checkout' %}">Hozir xarid qilish</a></div>
+            </section>
+        </div>
+        <nav class="tabs"><a href="#desc">Tavsif</a><a href="#spec">Xususiyatlar</a><a href="#reviews">Sharhlar
+            428</a><a href="#questions">Savollar 36</a></nav>
+        <section class="section" id="desc"><h2>Mahsulot haqida</h2>
+            <p style="max-width:850px;line-height:1.8">Galaxy A55 yorqin Super AMOLED displey, optik stabilizatsiyali 50
+                MP kamera, uzoq ishlaydigan batareya va 5G ulanishini taklif qiladi. Korpus suv va changdan
+                himoyalangan.</p>
+            <div class="specs" id="spec">
+                <div class="spec"><span>Ekran</span><b>6.6", AMOLED</b></div>
+                <div class="spec"><span>Xotira</span><b>8/256 GB</b></div>
+                <div class="spec"><span>Kamera</span><b>50+12+5 MP</b></div>
+                <div class="spec"><span>Batareya</span><b>5000 mAh</b></div>
+                <div class="spec"><span>SIM</span><b>Dual SIM</b></div>
+                <div class="spec"><span>Kafolat</span><b>12 oy</b></div>
+            </div>
+        </section>
+        <section class="section" id="reviews"><h2>Xaridorlar sharhlari</h2>
+            <div class="review-card"><b>Azizbek · ★★★★★</b>
+                <p>Telefon tez, kamera yaxshi. Ertasi kuni punktdan oldim, qadoqlanishi ham yaxshi edi.</p></div>
+            <div class="review-card"><b>Madina · ★★★★★</b>
+                <p>Rangi juda chiroyli, batareyasi bir yarim kun yetadi.</p></div>
+        </section>
+    </div>
+</main>
+{% endblock %}
