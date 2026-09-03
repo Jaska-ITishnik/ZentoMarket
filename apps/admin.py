@@ -18,7 +18,7 @@ class CustomUserAdmin(UserAdmin):
         ("Zento ma’lumotlari", {"fields": ("phone", "avatar", "role")}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ("Zento ma’lumotlari", {"fields": ("email", "phone", "avatar", "role")}),
+        ("Zento ma’lumotlari edited", {"fields": ("email", "phone", "avatar", "role")}),
     )
 
 
