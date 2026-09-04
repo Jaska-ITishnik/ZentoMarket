@@ -5,177 +5,117 @@
     <div class="container">
         <section class="hero-grid">
             <div class="hero">
-                <div class="hero-copy"><span class="tag">8.8 Mega savdo</span>
+                <div class="hero-copy">
+                    <span class="tag">8.8 Mega savdo</span>
                     <h1>Yozning eng katta chegirmalari</h1>
-                    <p>Smartfon, texnika, kiyim va uy uchun minglab mahsulotlar — 60% gacha arzon.</p><a class="btn"
-                                                                                                         href="{% url 'apps:category' %}">Xarid
-                        qilish →</a></div>
+                    <p>Smartfon, texnika, kiyim va uy uchun minglab mahsulotlar — 60% gacha arzon.</p>
+                    <a class="btn" href="{% url 'apps:search' %}?discount=1">Xarid qilish →</a>
+                </div>
                 <img class="hero-art"
                      src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?auto=format&fit=crop&w=900&q=85"
-                     alt="Marketplace sale"></div>
-            <div class="hero-stack"><a class="mini-banner" href="{% url 'apps:category' %}"><span class="tag">-35%</span>
-                <h3>Smartfonlar haftaligi</h3>
-                <p>1 499 000 so‘mdan</p><img
-                        src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80"
-                        alt="Smartphone"></a><a class="mini-banner" href="{% url 'apps:category' %}"><span class="tag"
-                                                                                               style="background:var(--green)">Tez yetkazish</span>
-                <h3>Uy uchun kerakli hammasi</h3>
-                <p>Bugunoq olib keting</p><img
-                        src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80"
-                        alt="Home products"></a></div>
-        </section>
-        <section class="quick-grid"><a class="quick" href="{% url 'apps:category' %}"><b>⚡</b> Tez yetkazish</a><a class="quick"
-                                                                                                       href="{% url 'apps:category' %}"><b>🔥</b>
-            Arzon narxlar</a><a class="quick" href="{% url 'apps:pickup' %}"><b>📦</b> Punktdan olish</a><a class="quick"
-                                                                                               href="{% url 'apps:category' %}"><b>💳</b>
-            Muddatli to‘lov</a><a class="quick" href="{% url 'apps:seller' %}"><b>🏪</b> Brendlar</a><a class="quick"
-                                                                                           href="{% url 'apps:category' %}"><b>🎁</b>
-            Sovg‘alar</a></section>
-        <section class="section">
-            <div class="section-head">
-                <div><h2>🔥 Kun takliflari</h2>
-                    <p>Chegirma tugashiga shoshiling</p></div>
-                <span class="timer">02 : 18 : 44</span></div>
-            <div class="product-grid">
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80"
-                            alt="Smartphone"><span class="product-label">-28%</span>
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><a href="{% url 'apps:product' %}"><p class="product-title">Samsung Galaxy A55 5G,
-                        8/256 GB, Dual SIM</p></a><span class="rating">★ 4.9 <i class="review">(428)</i></span><span
-                            class="installment">299 000 so‘m × 12 oy</span><span class="old-price">4 799 000 so‘m</span><b
-                            class="price">3 589 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=500&q=80"
-                            alt="Perfume"><span class="product-label">-40%</span>
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Lattafa ayollar atiri, 100 ml, uzoq
-                        saqlanuvchi</p><span class="rating">★ 4.8 <i class="review">(1 204)</i></span><span
-                            class="installment">29 900 so‘m × 12 oy</span><span class="old-price">599 000 so‘m</span><b
-                            class="price">359 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
-                            alt="Sneakers"><span class="product-label">-31%</span>
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Nike Air sport krossovkalari, erkaklar uchun</p>
-                        <span class="rating">★ 4.7 <i class="review">(356)</i></span><span class="installment">89 000 so‘m × 12 oy</span><span
-                                class="old-price">1 490 000 so‘m</span><b class="price">1 069 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=500&q=80"
-                            alt="Coffee machine"><span class="product-label">Super narx</span>
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">DeLonghi avtomatik qahva mashinasi, 15 bar</p>
-                        <span class="rating">★ 4.9 <i class="review">(88)</i></span><span class="installment">389 000 so‘m × 12 oy</span><span
-                                class="old-price">5 299 000 so‘m</span><b class="price">4 669 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=500&q=80"
-                            alt="Chair"><span class="product-label">-22%</span>
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Ergonomik ofis stuli, bel tayanchi bilan</p><span
-                            class="rating">★ 4.8 <i class="review">(143)</i></span><span class="installment">109 000 so‘m × 12 oy</span><span
-                            class="old-price">1 690 000 so‘m</span><b class="price">1 309 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
+                     alt="Marketplace sale">
+            </div>
+            <div class="hero-stack">
+                <a class="mini-banner" href="{% url 'apps:search' %}?discount=1">
+                    <span class="tag">-35%</span>
+                    <h3>Smartfonlar haftaligi</h3>
+                    <p>Eng yaxshi takliflar</p>
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80"
+                         alt="Smartphone">
+                </a>
+                <a class="mini-banner" href="{% url 'apps:catalog' %}">
+                    <span class="tag" style="background:var(--green)">Tez yetkazish</span>
+                    <h3>Uy uchun kerakli hammasi</h3>
+                    <p>Bugunoq olib keting</p>
+                    <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=500&q=80"
+                         alt="Home products">
+                </a>
             </div>
         </section>
+
+        <section class="quick-grid">
+            <a class="quick" href="{% url 'apps:catalog' %}"><b>⚡</b> Tez yetkazish</a>
+            <a class="quick" href="{% url 'apps:search' %}?discount=1"><b>🔥</b> Arzon narxlar</a>
+            <a class="quick" href="{% url 'apps:pickup' %}"><b>📦</b> Punktdan olish</a>
+            <a class="quick" href="{% url 'apps:catalog' %}"><b>💳</b> Muddatli to‘lov</a>
+            <a class="quick" href="#popular-brands"><b>🏪</b> Brendlar</a>
+            <a class="quick" href="{% url 'apps:catalog' %}"><b>🎁</b> Sovg‘alar</a>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>Katalog</h2>
+                <a href="{% url 'apps:catalog' %}">Barchasini ko‘rish →</a>
+            </div>
+            <div class="subcategories home-categories">
+                {% for category in catalog_categories %}
+                    <a class="subcat" href="{% url 'apps:search' %}?category={{ category.slug|urlencode }}">
+                        {% if category.image %}<img src="{{ category.image.url }}" alt="">{% else %}<b>📦</b>{% endif %}
+                        <span>{{ category.name }}</span>
+                        <small>{{ category.product_count }} mahsulot</small>
+                    </a>
+                {% empty %}
+                    <p class="empty-state">Faol kategoriyalar hozircha mavjud emas.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>🔥 Kun takliflari</h2>
+                    <p>Chegirma tugashiga shoshiling</p>
+                </div>
+                <a href="{% url 'apps:search' %}?discount=1">Barchasini ko‘rish →</a>
+            </div>
+            <div class="product-grid">
+                {% for product in discount_products %}
+                    {% include "includes/product_card.html" %}
+                {% empty %}
+                    <p class="empty-state">Hozircha chegirmali mahsulotlar mavjud emas.</p>
+                {% endfor %}
+            </div>
+        </section>
+
         <section class="section wide-banner">
-            <div><span class="tag" style="background:var(--yellow);color:#222">Zento Pay</span>
+            <div>
+                <span class="tag" style="background:var(--yellow);color:#222">Zento Pay</span>
                 <h2>Har qanday xaridni 12 oygacha bo‘lib to‘lang</h2>
-                <p>Rasmiy daromad ma’lumotnomasisiz. Javob bir necha daqiqada.</p><a class="btn btn-light"
-                                                                                     href="{% url 'apps:faq' %}">Batafsil</a></div>
+                <p>Rasmiy daromad ma’lumotnomasisiz. Javob bir necha daqiqada.</p>
+                <a class="btn btn-light" href="{% url 'apps:faq' %}">Batafsil</a>
+            </div>
             <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80"
-                 alt="Easy payment"></section>
+                 alt="Easy payment">
+        </section>
+
         <section class="section">
             <div class="section-head">
-                <div><h2>Siz uchun tavsiyalar</h2>
-                    <p>Ko‘p xarid qilinayotgan mahsulotlar</p></div>
-                <a href="{% url 'apps:catalog' %}">Barchasini ko‘rish →</a></div>
+                <div>
+                    <h2>Siz uchun tavsiyalar</h2>
+                    <p>Ko‘p xarid qilinayotgan mahsulotlar</p>
+                </div>
+                <a href="{% url 'apps:search' %}?sort=popular">Barchasini ko‘rish →</a>
+            </div>
             <div class="product-grid">
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80">
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Sony simsiz quloqchin, faol shovqin
-                        pasaytirish</p><span class="rating">★ 4.9 <i class="review">(814)</i></span><span
-                            class="installment">149 000 × 12 oy</span><b class="price">1 789 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1600494603989-9650cf6ddd3d?auto=format&fit=crop&w=500&q=80">
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Ayollar uchun kundalik sumka, eko-charm</p><span
-                            class="rating">★ 4.7 <i class="review">(240)</i></span><span class="installment">24 900 × 12 oy</span><b
-                            class="price">299 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=500&q=80">
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Polarizatsiyali quyosh ko‘zoynagi, UV400</p><span
-                            class="rating">★ 4.8 <i class="review">(519)</i></span><span class="installment">12 400 × 12 oy</span><b
-                            class="price">149 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80">
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Aqlli soat, yurak urishi va uyqu monitoringi</p>
-                        <span class="rating">★ 4.6 <i class="review">(692)</i></span><span class="installment">39 900 × 12 oy</span><b
-                                class="price">479 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
-                <article class="product">
-                    <div class="product-img"><img
-                            src="https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=500&q=80">
-                        <button class="heart">♡</button>
-                    </div>
-                    <div class="product-body"><p class="product-title">Robot changyutgich, nam tozalash funksiyasi</p>
-                        <span class="rating">★ 4.8 <i class="review">(311)</i></span><span class="installment">199 000 × 12 oy</span><b
-                                class="price">2 389 000 so‘m</b>
-                        <button class="cart-fab" data-cart>🛒</button>
-                    </div>
-                </article>
+                {% for product in best_sellers %}
+                    {% include "includes/product_card.html" %}
+                {% empty %}
+                    <p class="empty-state">Hozircha mahsulotlar mavjud emas.</p>
+                {% endfor %}
             </div>
         </section>
-        <section class="section">
+
+        <section class="section" id="popular-brands">
             <div class="section-head"><h2>Mashhur brendlar</h2></div>
-            <div class="brand-grid"><a class="brand">SAMSUNG</a><a class="brand">XIAOMI</a><a class="brand">APPLE</a><a
-                    class="brand">LG</a><a class="brand">BOSCH</a><a class="brand">NIKE</a><a class="brand">ADIDAS</a><a
-                    class="brand">LOREAL</a></div>
+            <div class="brand-grid">
+                {% for brand in popular_brands %}
+                    <a class="brand" href="{% url 'apps:search' %}?brand={{ brand.slug|urlencode }}">
+                        {% if brand.logo %}<img src="{{ brand.logo.url }}" alt="{{ brand.name }}">{% else %}{{ brand.name|upper }}{% endif %}
+                    </a>
+                {% empty %}
+                    <p class="empty-state">Faol brendlar hozircha mavjud emas.</p>
+                {% endfor %}
+            </div>
         </section>
     </div>
 </main>

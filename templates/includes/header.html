@@ -9,7 +9,15 @@
                 <button type="submit" aria-label="Qidirish">⌕</button>
             </form>
             <div class="head-actions">
-                <a class="head-link" href="{% url 'apps:login' %}"><span>♙</span><small>Kirish</small></a>
+                {% if request.user.is_authenticated %}
+                    <a class="head-link" href="{% url 'apps:account' %}"><span>♙</span><small>{{ request.user.first_name|default:"Kabinet" }}</small></a>
+                    <form action="{% url 'apps:logout' %}" method="post" style="margin:0">
+                        {% csrf_token %}
+                        <button class="head-link" type="submit" style="border:0;background:none;cursor:pointer"><span>↪</span><small>Chiqish</small></button>
+                    </form>
+                {% else %}
+                    <a class="head-link" href="{% url 'apps:login' %}"><span>♙</span><small>Kirish</small></a>
+                {% endif %}
                 <a class="head-link" href="{% url 'apps:compare' %}"><span>⇄</span><small>Taqqoslash</small></a>
                 <a class="head-link" href="{% url 'apps:wishlist' %}"><span>♡</span><small>Sevimlilar</small></a>
                 <a class="head-link" href="{% url 'apps:cart' %}">
@@ -20,14 +28,10 @@
     </div>
     {% if not compact_layout %}
         <nav class="container category-nav">
-            <a href="{% url 'apps:category' %}">🔥 Haftalik chegirmalar</a>
-            <a href="{% url 'apps:category' %}">Elektronika</a>
-            <a href="{% url 'apps:category' %}">Maishiy texnika</a>
-            <a href="{% url 'apps:category' %}">Kiyim</a>
-            <a href="{% url 'apps:category' %}">Poyabzal</a>
-            <a href="{% url 'apps:category' %}">Uy-ro‘zg‘or</a>
-            <a href="{% url 'apps:category' %}">Go‘zallik</a>
-            <a href="{% url 'apps:category' %}">Bolalar</a>
+            <a href="{% url 'apps:search' %}?discount=1">🔥 Haftalik chegirmalar</a>
+            {% for category in navigation_categories %}
+                <a href="{% url 'apps:search' %}?category={{ category.slug|urlencode }}">{{ category.name }}</a>
+            {% endfor %}
             <a href="{% url 'apps:catalog' %}">Yana ▾</a>
         </nav>
     {% endif %}

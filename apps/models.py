@@ -75,12 +75,36 @@ class Category(TimeStampedModel):
         return self.name
 
 
+class Brand(TimeStampedModel):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    logo = models.ImageField(upload_to=dated_media_upload_path, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(TimeStampedModel):
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name="products")
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=280, unique=True, blank=True)
-    brand = models.CharField(max_length=100, blank=True)
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="products",
+    )
     sku = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -101,6 +125,10 @@ class Product(TimeStampedModel):
         if self.old_price and self.old_price > self.price:
             return round((self.old_price - self.price) / self.old_price * 100)
         return 0
+
+    @property
+    def installment_price(self):
+        return self.price / 12
 
     def __str__(self):
         return self.name

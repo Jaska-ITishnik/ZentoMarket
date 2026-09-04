@@ -3,8 +3,12 @@
     <a{% if active_page == "orders" %} class="active"{% endif %} href="{% url 'apps:orders' %}">📦 Buyurtmalar</a>
     <a{% if active_page == "wishlist" %} class="active"{% endif %} href="{% url 'apps:wishlist' %}">♡ Sevimlilar</a>
     <a{% if active_page == "addresses" %} class="active"{% endif %} href="{% url 'apps:addresses' %}">📍 Manzillar</a>
-    <a{% if active_page == "notifications" %} class="active"{% endif %} href="{% url 'apps:notifications' %}">🔔 Xabarnomalar</a>
+    <a{% if active_page == "notifications" %} class="active"{% endif %} href="{% url 'apps:notifications' %}">🔔
+        Xabarnomalar</a>
     <a{% if active_page == "chat" %} class="active"{% endif %} href="{% url 'apps:chat' %}">💬 Yordam chat</a>
     <a href="#">⚙ Shaxsiy ma’lumotlar</a>
-    <a href="{% url 'apps:login' %}">↪ Chiqish</a>
+    <form action="{% url 'apps:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">↪ Chiqish</button>
+    </form>
 </aside>

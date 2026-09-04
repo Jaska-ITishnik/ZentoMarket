@@ -42,6 +42,9 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'apps.User'
+LOGIN_URL = 'apps:login'
+LOGIN_REDIRECT_URL = 'apps:index'
+LOGOUT_REDIRECT_URL = 'apps:index'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -66,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.context_processors.navigation_categories',
             ],
         },
     },

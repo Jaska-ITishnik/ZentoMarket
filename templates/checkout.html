@@ -9,10 +9,10 @@
             <form>
                 <section class="form-section"><h2>1. Qabul qiluvchi</h2>
                     <div class="form-grid">
-                        <div><label>Ism</label><input class="field" value="Aziza"></div>
-                        <div><label>Familiya</label><input class="field" value="Karimova"></div>
-                        <div><label>Telefon</label><input class="field" value="+998 90 123 45 67"></div>
-                        <div><label>Email</label><input class="field" value="aziza@example.com"></div>
+                        <div><label>Ism</label><input class="field" name="first_name" value="{{ request.user.first_name }}"></div>
+                        <div><label>Familiya</label><input class="field" name="last_name" value="{{ request.user.last_name }}"></div>
+                        <div><label>Telefon</label><input class="field" name="phone" value="{{ request.user.phone }}"></div>
+                        <div><label>Email</label><input class="field" name="email" type="email" value="{{ request.user.email }}"></div>
                     </div>
                 </section>
                 <section class="form-section"><h2>2. Yetkazib berish usuli</h2><label class="seller-box"

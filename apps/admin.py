@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import (
-    Address, Cart, CartItem, Category, Chat, ChatMessage, DeliveryPoint,
+    Address, Brand, Cart, CartItem, Category, Chat, ChatMessage, DeliveryPoint,
     Notification, Order, OrderItem, Payment, Product, ProductImage,
     ProductVariant, Review, Seller, User, Wishlist,
 )
@@ -36,7 +36,7 @@ class ProductVariantInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "seller", "category", "price", "stock", "is_active", "created_at")
     list_filter = ("category", "seller", "is_active", "brand")
-    search_fields = ("name", "sku", "brand")
+    search_fields = ("name", "sku", "brand__name")
     prepopulated_fields = {"slug": ("name",)}
     inlines = (ProductImageInline, ProductVariantInline)
 
@@ -45,6 +45,14 @@ class ProductAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "parent", "is_active", "created_at")
     list_filter = ("is_active", "parent")
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_active", "created_at")
+    list_filter = ("is_active",)
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
 
