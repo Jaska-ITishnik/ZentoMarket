@@ -1,5 +1,222 @@
-Vazifalar:
+# ZentoMarket — 11 darslik yakuniy loyiha rejasi
 
-1. Loyihani ma'lumotlar bilan to'ldirish masalan bir qancha maxsulot, kategoriya, foydalanuvchilar vaho kazo boshqa muhim modellarni ham ma'lumot bilan to'ldiramiz
+Tahlil sanasi: 2026-09-07
 
-2. Authentication (Login / Register) to'liq ishaydigan qilamiz backend bilan
+Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalarini real ma'lumot va backend amallari bilan bog'lash, sotuvchi bilan bog'liq ko'zda tutilgan oqimlarni yakunlash hamda 11-dars oxirida namoyishga tayyor elektron magazin olish.
+
+## Hozirgi holat tahlili
+
+### Bajarilgan qismlar
+
+- [x] Django loyiha tuzilmasi, PostgreSQL sozlamasi, static/media ulanishi yaratilgan.
+- [x] Umumiy `base.html`, header, topbar, footer, kabinet navigatsiyasi va mahsulot kartasi ajratilgan.
+- [x] Barcha asosiy sahifalarning HTML/CSS maketlari bor: home, katalog, kategoriya, qidiruv, mahsulot, sotuvchi, savat, sevimlilar, taqqoslash, checkout, buyurtmalar, profil, manzillar, xabarnomalar, chat, yordam va boshqa axborot sahifalari.
+- [x] Moslashuvchan dizayn uchun umumiy CSS bazasi va kichik frontend interaksiyalari yozilgan.
+- [x] `User`, `Seller`, `Category`, `Brand`, `Product`, `ProductImage`, `ProductVariant`, `Cart`, `CartItem`, `Wishlist`, `Address`, `Order`, `OrderItem`, `Review`, `DeliveryPoint`, `Payment`, `Notification`, `Chat`, `ChatMessage` modellari mavjud.
+- [x] Modellar admin panelga ro'yxatdan o'tkazilgan.
+- [x] Demo foydalanuvchilar, sotuvchilar, kategoriyalar, brendlar, mahsulotlar, variantlar va rasmlarni yaratadigan `seed_market` komandasi mavjud.
+- [x] Email orqali ro'yxatdan o'tish, kirish, chiqish, `next` manziliga qaytish va checkout himoyasi ishlaydi.
+- [x] Bosh sahifadagi kategoriyalar, chegirmalar, ko'p sotilgan mahsulotlar va mashhur brendlar bazadan olinadi.
+- [x] Katalog kategoriyalari bazadan olinadi.
+- [x] Qidiruv nom, tavsif, SKU, brend, kategoriya va sotuvchi bo'yicha ishlaydi; kategoriya, brend, chegirma va tartiblash parametrlari mavjud.
+- [x] Autentifikatsiya va storefront uchun 14 ta avtomatik test yozilgan.
+
+### Hali statik yoki to'liq ishlamaydigan qismlar
+
+- [ ] `category`, `product`, `seller` sahifalari parametrsiz URL va hardkod demo ma'lumotlardan foydalanadi.
+- [ ] Kategoriya filtrlari, narx oralig'i, reyting, variant va sahifalash ishlamaydi.
+- [ ] Sevimlilar, taqqoslash va savat tugmalari faqat JavaScript demo; ma'lumot bazaga yozilmaydi.
+- [ ] Headerdagi savat/sevimlilar soni real holatdan olinmaydi.
+- [ ] Checkout formasi, yetkazish turi, punkt, to'lov va buyurtma yaratish oqimi backendga ulanmagan.
+- [ ] Profil, manzillar, buyurtmalar, buyurtma tafsiloti, xabarnomalar va chat statik.
+- [ ] Sharh qoldirish, qayta xarid, buyurtmani bekor qilish/qaytarish oqimlari yo'q.
+- [ ] Parolni tiklash, kontakt murojaati va sotuvchi arizasi yuborilmaydi.
+- [ ] 404 sahifasi bor, lekin global `handler404` sifatida ulanmagan.
+- [ ] Ayrim `href="#"` havolalar va demo tugmalar mavjud; tashqi Unsplash rasmlari qolgan.
+- [ ] Testlar PostgreSQL ishlamayotgani sabab 2026-09-07 kuni test bazasini yarata olmadi; DB ishga tushgach qayta bajarish kerak.
+
+## 1-dars — Modellar va admin panel (bajarilgan)
+
+- [x] Marketplace uchun asosiy modellarni loyihalash.
+- [x] Bog'lanishlar, statuslar, validatorlar va unique constraintlarni qo'shish.
+- [x] Modellarni admin panelda boshqariladigan qilish.
+- [x] Dastlabki migratsiyalarni yaratish.
+
+Natija: elektron magazinning ma'lumotlar qatlami tayyor.
+
+## 2-dars — Demo ma'lumotlar, autentifikatsiya va bosh sahifa (bajarilgan)
+
+- [x] `seed_market` orqali realistik demo katalog yaratish.
+- [x] Register, login va logout oqimini backend bilan ishlatish.
+- [x] Bosh sahifa, katalog va qidiruvni bazadagi ma'lumotlarga bog'lash.
+- [x] Ushbu oqimlar uchun boshlang'ich testlarni yozish.
+
+Natija: foydalanuvchi tizimga kirishi, katalogni ko'rishi va mahsulot qidirishi mumkin.
+
+
+
+
+
+
+
+
+## 3-dars — Dinamik kategoriya, mahsulot va sotuvchi sahifalari (bugungi dars)
+
+- [ ] `category/<slug>/`, `product/<slug>/`, `seller/<pk-or-slug>/` ko'rinishidagi aniq URLlarni yaratish.
+- [ ] Eski parametrsiz demo URLlarni yangi URLlarga mos yo'naltirish yoki olib tashlash.
+- [ ] `CategoryView`da ota/bola kategoriyalar, mahsulot soni, faol mahsulotlar va breadcrumbni bazadan olish.
+- [ ] GET parametrlari orqali brend, minimal/maksimal narx, chegirma, reyting va mavjudlik filtrlarini ishlatish.
+- [ ] Ommabop, arzon, qimmat, reyting va yangi bo'yicha tartiblashni qo'shish.
+- [ ] Kategoriya va qidiruv natijalariga pagination hamda filter holatini saqlashni qo'shish.
+- [ ] `ProductDetailView`da rasmlar galereyasi, narx, eski narx, qoldiq, variantlar, sotuvchi, reyting, sharhlar va o'xshash mahsulotlarni chiqarish.
+- [ ] Variant tanlanganda narx va qoldiqning frontendda yangilanishini yozish.
+- [ ] `SellerDetailView`da do'kon ma'lumoti, reytingi va faol mahsulotlarini bazadan chiqarish.
+- [ ] Hardkod mahsulotlar va tashqi rasm URLlarini template'lardan olib tashlash; bo'sh rasm uchun lokal placeholder qo'shish.
+- [ ] Noto'g'ri slug uchun 404, faol bo'lmagan yoki qoldiqsiz mahsulot holatini to'g'ri ko'rsatish.
+- [ ] View, filter, pagination va 404 holatlari uchun test yozish.
+
+Qabul mezoni: bosh sahifa, katalog yoki qidiruvdan bosilgan har bir kategoriya, mahsulot va sotuvchi o'z bazaviy ma'lumoti bilan ochiladi; barcha filter va pagination URL orqali qayta tiklanadi.
+
+
+
+
+
+
+
+
+
+## 4-dars — Sevimlilar va mahsulotlarni taqqoslash
+
+- [ ] Sevimliga qo'shish/o'chirish uchun faqat autentifikatsiyadan o'tgan foydalanuvchiga ruxsat beruvchi POST endpoint yaratish.
+- [ ] `wishlist.html`ni `Wishlist` modeli bilan dinamik qilish va bo'sh holatni chiqarish.
+- [ ] Mahsulot kartasi/detaildagi yurak holatini bazadagi holat bilan sinxronlash.
+- [ ] Fetch/AJAX javobida CSRF, xatolik, login redirect va header counterini boshqarish.
+- [ ] Taqqoslash ro'yxatini sessionda saqlash; bir kategoriya ichidan maksimal 4 mahsulot qoidasi qo'yish.
+- [ ] Taqqoslashga qo'shish/o'chirish/tozalash amallarini yaratish.
+- [ ] `compare.html`da mahsulot rasmi, narxi, reytingi, mavjudligi va umumiy xususiyatlarini dinamik jadvalda ko'rsatish.
+- [ ] Sahifa yangilanganda wishlist va compare holati yo'qolmasligini tekshirish.
+- [ ] Ruxsat, takroriy qo'shish, limit va bo'sh holatlar uchun test yozish.
+
+Qabul mezoni: foydalanuvchi istalgan mahsulotni saqlaydi yoki taqqoslaydi, header sonlari darhol yangilanadi va ma'lumot sahifa yangilanganda saqlanadi.
+
+## 5-dars — Savatning to'liq ishlashi
+
+- [ ] Foydalanuvchi uchun savatni avtomatik yaratish va barcha savat so'rovlarini bitta service qatlamida jamlash.
+- [ ] Mahsulot/variantni savatga POST orqali qo'shish, mavjud qator bo'lsa sonini oshirish.
+- [ ] Miqdorni oshirish/kamaytirish, qatorni o'chirish va savatni tozalash endpointlarini yaratish.
+- [ ] Variant qoldig'i va umumiy mahsulot qoldig'idan oshib ketishni bloklash.
+- [ ] Narxni savatga qo'shilgan vaqtda saqlash, ko'rsatishda joriy narx o'zgarganini aniqlash.
+- [ ] `cart.html`ni mahsulot, variant, dona narxi, subtotal va jami summa bilan dinamik qilish.
+- [ ] Header savat soni uchun context processor yozish.
+- [ ] Guest foydalanuvchini login sahifasiga qaytarish va kirgach oldingi amalni davom ettirish.
+- [ ] AJAX jarayonlari uchun loading, muvaffaqiyat, xato va bo'sh savat holatlarini yozish.
+- [ ] Savat biznes qoidalari va ruxsatlari uchun test yozish.
+
+Qabul mezoni: savatdagi har bir amal bazaga yoziladi, jami summalar serverda hisoblanadi va qoldiq qoidalari buzilmaydi.
+
+## 6-dars — Checkout, yetkazib berish, to'lov va buyurtma yaratish
+
+- [ ] Checkoutga faqat autentifikatsiya va bo'sh bo'lmagan savat bilan kirishni ta'minlash.
+- [ ] `CheckoutForm` yaratib, mavjud/yangi manzil, kuryer/punkt, to'lov turi, telefon va izohni validatsiya qilish.
+- [ ] `DeliveryPoint` ma'lumotlarini `pickup.html`da bazadan chiqarish, hudud bo'yicha qidirish va punkt tanlashni qo'shish.
+- [ ] Tanlangan yetkazish turiga qarab checkout maydonlarini ko'rsatish/yashirish va yetkazish narxini qayta hisoblash.
+- [ ] Server tomonida savatni qayta tekshirib, `transaction.atomic()` ichida `Order`, `OrderItem` va `Payment` yozuvlarini yaratish.
+- [ ] Takrorlanmaydigan buyurtma raqamini generatsiya qilish.
+- [ ] Mahsulot/variant qoldig'ini xavfsiz kamaytirish va bir vaqtning o'zidagi xaridlarda oversellingni bloklash.
+- [ ] Buyurtmadan keyin savatni tozalash va aynan yaratilgan buyurtmaga tegishli success sahifasiga yo'naltirish.
+- [ ] Karta to'lovi uchun haqiqiy provaydersiz xavfsiz demo status oqimini belgilash; naqd va muddatli to'lov holatlarini alohida ko'rsatish.
+- [ ] Forma xatolari, qoldiq o'zgarishi, begona manzil/punkt va takroriy submit holatlarini test qilish.
+
+Qabul mezoni: foydalanuvchi savatdan boshlab buyurtma raqami ko'rsatilgan success sahifasigacha to'liq oqimni yakunlaydi; summa va qoldiq faqat server tomonidan ishonchli hisoblanadi.
+
+## 7-dars — Shaxsiy kabinet va manzillar
+
+- [ ] Kabinet, manzillar, buyurtmalar, sevimlilar, xabarnomalar va chat sahifalarini `LoginRequiredMixin` bilan himoyalash.
+- [ ] `account.html`da real foydalanuvchi ismi, emaili, telefoni, avatari va hisob statistikasini chiqarish.
+- [ ] Profilni tahrirlash va avatar yuklash formalarini validatsiya bilan yozish.
+- [ ] Parolni almashtirish oqimini qo'shish va muvaffaqiyatdan keyin sessiyani saqlash.
+- [ ] `addresses.html`ni bazadan to'ldirish; manzil qo'shish, tahrirlash va o'chirish amallarini yaratish.
+- [ ] Bitta asosiy manzil qoidasini service/model darajasida ta'minlash.
+- [ ] Modal/formalar uchun frontend validatsiya, server xatolari va success xabarlarini ko'rsatish.
+- [ ] Foydalanuvchi faqat o'z profil va manzillarini boshqara olishini test qilish.
+
+Qabul mezoni: kabinetdagi barcha ma'lumot real foydalanuvchiga tegishli va boshqa foydalanuvchining obyektiga URL orqali kirib bo'lmaydi.
+
+## 8-dars — Buyurtmalar, sharhlar, qayta xarid va qaytarish
+
+- [ ] `orders.html`da foydalanuvchining buyurtmalarini status, sana va pagination bilan chiqarish.
+- [ ] `order-detail/<order_number>/` sahifasini mahsulotlar, jami summa, yetkazish, to'lov va status timeline bilan dinamik qilish.
+- [ ] Faqat ruxsat etilgan statusda buyurtmani bekor qilish amali va tasdiqlash oynasini yozish.
+- [ ] “Qayta xarid qilish” orqali mavjud mahsulotlarni qoldiqni tekshirgan holda savatga qaytarish.
+- [ ] Yetkazilgan va foydalanuvchi sotib olgan mahsulot uchun 1–5 baho va matnli sharh formasini yaratish.
+- [ ] Bir order mahsulotiga takroriy sharhni cheklash va verified purchase belgisini serverda qo'yish.
+- [ ] Qaytarish so'rovi uchun minimal model/status va foydalanuvchi formasini yaratish; buyurtma timeline'ida ko'rsatish.
+- [ ] Buyurtma, review, cancel, reorder va return ruxsatlari uchun test yozish.
+
+Qabul mezoni: foydalanuvchi buyurtma tarixini real ma'lumot bilan kuzatadi va faqat biznes qoidalari ruxsat bergan amallarni bajara oladi.
+
+## 9-dars — Xabarnomalar, chat va yordam oqimlari
+
+- [ ] `notifications.html`ni bazadagi xabarnomalar bilan to'ldirish, bitta yoki barchasini o'qilgan qilish endpointlarini yaratish.
+- [ ] Headerdagi o'qilmagan xabarnomalar sonini real hisoblash.
+- [ ] Buyurtma yaratilishi/status o'zgarishi, sharh va qaytarish voqealarida xabarnoma yaratish service/signallarini qo'shish.
+- [ ] `chat.html`da foydalanuvchining suhbatlari va tanlangan suhbat xabarlarini bazadan chiqarish.
+- [ ] Yangi suhbat ochish va xabar yuborishni POST/AJAX orqali ishlatish; chat ownershipni tekshirish.
+- [ ] Oddiy polling orqali yangi xabarlarni olish va o'qilgan holatini yangilash.
+- [ ] `contact.html` uchun validatsiyali murojaat formasi va saqlash/email yuborish oqimini yaratish.
+- [ ] Django password reset viewlari, email template'lari va console email backend bilan parolni tiklashni to'liq ishlatish.
+- [ ] FAQ kategoriya tugmalari, klaviatura boshqaruvi va accordion accessibility holatini yakunlash.
+- [ ] Notification, chat, contact va password reset testlarini yozish.
+
+Qabul mezoni: yordam va xabarnoma sahifalarida demo matn qolmaydi; yuborilgan murojaat/xabar saqlanadi, parol tiklash havolasi yaratiladi.
+
+## 10-dars — Sotuvchi oqimi va do'konni yakunlash
+
+- [ ] `SellerApplication` model/formasini yaratib `sell.html`dagi arizani backendga ulash.
+- [ ] Authenticated seller uchun do'kon profilini ko'rish/tahrirlash oqimini yaratish.
+- [ ] Sotuvchining mahsulotlari uchun ro'yxat, qo'shish, tahrirlash, rasm/variant va qoldiq boshqaruvini yaratish.
+- [ ] Seller faqat o'z do'koni va mahsulotlarini o'zgartira olishini qat'iy tekshirish.
+- [ ] Seller buyurtmalarini ko'rish va ruxsat etilgan status bosqichlarini yangilash oqimini qo'shish.
+- [ ] Public seller sahifasida real do'kon statistikasini, reytingni, katalog filteri va paginationni chiqarish.
+- [ ] Ariza yuborilganda hamda order statusi o'zgarganda tegishli xabarnomalar yaratish.
+- [ ] Seller/customer rollari, ownership, forma va status o'tishlari uchun test yozish.
+
+Qabul mezoni: sotuvchi arizasi yuboriladi; tasdiqlangan seller o'z mahsuloti va buyurtmasini boshqaradi, xaridor esa public do'kon sahifasini ko'radi.
+
+## 11-dars — Frontend polishing, xavfsizlik, test va final topshirish
+
+- [ ] Barcha sahifalardagi hardkod demo ma'lumot, `href="#"`, ishlamaydigan tugma va tashqi rasm URLlarini audit qilib tugatish.
+- [ ] Loading, empty, success, validation error, permission denied va 404/500 holatlarini yagona dizaynda ko'rsatish.
+- [ ] Mobil, planshet va desktopda header, katalog filteri, product grid, detail, checkout, jadval, kabinet va chatni tekshirish.
+- [ ] Semantik HTML, label, alt, focus, klaviatura navigatsiyasi, rang kontrasti va ARIA holatlarini tuzatish.
+- [ ] Pul formatlash, sana/vaqt zonasi, o'zbekcha matn va status nomlarini bir xil qilish (`LANGUAGE_CODE`, `TIME_ZONE`).
+- [ ] POST endpointlarda CSRF, login, ownership, HTTP method va foydalanuvchi kiritmalarini validatsiya qilish.
+- [ ] Global `handler404`/`handler500`, foydalanuvchiga tushunarli xabarlar va loglashni sozlash.
+- [ ] N+1 querylarni `select_related`/`prefetch_related` bilan kamaytirish, katta ro'yxatlarga pagination qo'yish.
+- [ ] `Makefile`ni `migrate`, `seed`, `run`, `test`, `check` targetlari bilan to'ldirish va fayl oxiriga yetishmayotgan newline'ni qo'shish.
+- [ ] `.env.example`, dependency fayli va ishga tushirish/seed/demo login yo'riqnomasini README'ga yozish; maxfiy sozlamalarni environmentga ko'chirish.
+- [ ] Barcha asosiy user journeylarni test qilish: register/login → qidiruv/filter → product/variant → wishlist/compare → cart → checkout → order → review/support.
+- [ ] `manage.py check`, migratsiya tekshiruvi va to'liq test suite'ni toza test bazasida muvaffaqiyatli o'tkazish.
+- [ ] Yakuniy qo'lda smoke-test o'tkazib, topilgan kritik va yuqori darajali xatolarni yopish.
+
+Qabul mezoni: barcha navigatsiya va tugmalar ishlaydi, demo hardkod qolmaydi, asosiy user journey mobil va desktopda yakunlanadi, Django check hamda testlar xatosiz o'tadi.
+
+## Har bir dars uchun umumiy Definition of Done
+
+- [ ] Kod faqat template ko'rinishida emas, tegishli model/view/form/URL bilan ishlaydi.
+- [ ] GET o'qish uchun, POST holat o'zgartirish uchun ishlatiladi; CSRF va login/ownership tekshiriladi.
+- [ ] Oddiy, bo'sh, xato va ruxsatsiz holatlar foydalanuvchiga tushunarli ko'rsatiladi.
+- [ ] Yangi oqim uchun biznes qiymati bor testlar yoziladi va mavjud testlar buzilmaydi.
+- [ ] Mobil hamda desktop ko'rinish qo'lda tekshiriladi.
+- [ ] Dars tugagach bajarilgan checkboxlar belgilanadi va keyingi dars uchun bloklovchi muammo qayd etiladi.
+
+## Yakuniy foydalanuvchi oqimlari
+
+- [ ] Mehmon katalogni ko'radi, qidiradi, filterlaydi va mahsulot/sotuvchi sahifasini ochadi.
+- [ ] Xaridor ro'yxatdan o'tadi, kiradi, sevimli va taqqoslash ro'yxatini boshqaradi.
+- [ ] Xaridor variant tanlaydi, savatni boshqaradi va buyurtma yaratadi.
+- [ ] Xaridor manzil/punkt va to'lov usulini tanlaydi, buyurtmani kuzatadi.
+- [ ] Xaridor profil/manzillarini boshqaradi, sharh yozadi, qayta xarid yoki qaytarish so'rovi yuboradi.
+- [ ] Xaridor xabarnoma oladi, sotuvchi/yordam bilan yozishadi va parolini tiklaydi.
+- [ ] Sotuvchi ariza yuboradi, do'kon va mahsulotlarini boshqaradi, buyurtma statusini yangilaydi.
+- [ ] Admin mavjud Django admin orqali katalog, foydalanuvchi, buyurtma, to'lov, murojaat va chatlarni nazorat qiladi.
