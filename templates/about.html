@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <main class="main">
@@ -8,8 +9,7 @@
                 <h1>O‘zbekistonda xaridni oddiyroq qilish</h1>
                 <p>Zento — xaridorlar, sotuvchilar va yetkazib berish xizmatlarini birlashtiruvchi universal marketplace
                     frontend konsepsiyasi.</p><a class="btn" href="{% url 'apps:catalog' %}">Katalogga o‘tish</a></div>
-            <img class="hero-art"
-                 src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=80">
+            <img class="hero-art" src="{% static 'apps/assets/img/hero-placeholder.svg' %}" alt="Marketplace illustration">
         </section>
         <section class="section">
             <div class="stats">

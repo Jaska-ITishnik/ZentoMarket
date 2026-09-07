@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <main class="main">
@@ -7,8 +8,8 @@
         <h1 class="page-title">Mahsulotlar katalogi</h1>
         <div class="subcategories catalog-categories">
             {% for category in categories %}
-                <a class="subcat" href="{% url 'apps:search' %}?category={{ category.slug|urlencode }}">
-                    {% if category.image %}<img src="{{ category.image.url }}" alt="">{% else %}<b>📦</b>{% endif %}
+                <a class="subcat" href="{% url 'apps:category' slug=category.slug %}">
+                    {% if category.image %}<img src="{{ category.image.url }}" alt="{{ category.name }}">{% else %}<img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="{{ category.name }}">{% endif %}
                     <span>{{ category.name }}</span>
                     <small>{{ category.product_count }} mahsulot</small>
                 </a>

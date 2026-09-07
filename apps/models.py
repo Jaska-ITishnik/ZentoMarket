@@ -148,6 +148,17 @@ class ProductVariant(TimeStampedModel):
     stock = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
+    @property
+    def final_price(self):
+        return self.product.price + self.extra_price
+
+    @property
+    def installment_price(self):
+        return self.final_price / 12
+
+    def __str__(self):
+        return f"{self.product.name} — {self.name}"
+
 
 class Cart(TimeStampedModel):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cart")

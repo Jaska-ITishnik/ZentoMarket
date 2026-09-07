@@ -5,30 +5,22 @@
     <div class="container">
         <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Qidiruv</div>
         <h1 class="page-title">{{ search_title }}</h1>
-        <div class="toolbar">
-            <b>{{ result_count }} ta mahsulot topildi</b>
-            <form method="get" action="{% url 'apps:search' %}">
-                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
-                {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
-                {% if request.GET.brand %}<input type="hidden" name="brand" value="{{ request.GET.brand }}">{% endif %}
-                {% if request.GET.discount %}<input type="hidden" name="discount" value="{{ request.GET.discount }}">{% endif %}
-                <select class="field" name="sort" onchange="this.form.submit()">
-                    <option value="popular"{% if sort == "popular" %} selected{% endif %}>Ommabopligi bo‘yicha</option>
-                    <option value="newest"{% if sort == "newest" %} selected{% endif %}>Eng yangilari</option>
-                    <option value="price_asc"{% if sort == "price_asc" %} selected{% endif %}>Narxi: arzondan</option>
-                    <option value="price_desc"{% if sort == "price_desc" %} selected{% endif %}>Narxi: qimmatdan</option>
-                </select>
-            </form>
-        </div>
-        <div class="product-grid search-results">
-            {% for product in products %}
-                {% include "includes/product_card.html" %}
-            {% empty %}
-                <div class="empty-state">
-                    <h3>Mahsulot topilmadi</h3>
-                    <p>Boshqa kalit so‘z bilan qidirib ko‘ring.</p>
+        <div class="catalog-layout">
+            {% include "includes/product_filters.html" %}
+            <section>
+                <div class="toolbar"><b>{{ result_count }} ta mahsulot topildi</b></div>
+                <div class="product-grid filtered-product-grid">
+                    {% for product in products %}
+                        {% include "includes/product_card.html" %}
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>Mahsulot topilmadi</h3>
+                            <p>Qidiruv yoki filtr qiymatlarini o‘zgartirib ko‘ring.</p>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+                {% include "includes/pagination.html" %}
+            </section>
         </div>
     </div>
 </main>

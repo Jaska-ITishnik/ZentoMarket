@@ -19,7 +19,7 @@ Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalar
 - [x] Bosh sahifadagi kategoriyalar, chegirmalar, ko'p sotilgan mahsulotlar va mashhur brendlar bazadan olinadi.
 - [x] Katalog kategoriyalari bazadan olinadi.
 - [x] Qidiruv nom, tavsif, SKU, brend, kategoriya va sotuvchi bo'yicha ishlaydi; kategoriya, brend, chegirma va tartiblash parametrlari mavjud.
-- [x] Autentifikatsiya va storefront uchun 14 ta avtomatik test yozilgan.
+- [x] Autentifikatsiya va storefront uchun 24 ta avtomatik test yozilgan.
 
 ### Hali statik yoki to'liq ishlamaydigan qismlar
 
@@ -33,7 +33,7 @@ Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalar
 - [ ] Parolni tiklash, kontakt murojaati va sotuvchi arizasi yuborilmaydi.
 - [ ] 404 sahifasi bor, lekin global `handler404` sifatida ulanmagan.
 - [ ] Ayrim `href="#"` havolalar va demo tugmalar mavjud; tashqi Unsplash rasmlari qolgan.
-- [ ] Testlar PostgreSQL ishlamayotgani sabab 2026-09-07 kuni test bazasini yarata olmadi; DB ishga tushgach qayta bajarish kerak.
+- [x] PostgreSQL ishlamagan muhitda testlarni alohida SQLite test sozlamasi bilan bajarish imkoniyati qo'shilgan.
 
 ## 1-dars — Modellar va admin panel (bajarilgan)
 
@@ -62,12 +62,12 @@ Natija: foydalanuvchi tizimga kirishi, katalogni ko'rishi va mahsulot qidirishi 
 
 ## 3-dars — Dinamik kategoriya, mahsulot va sotuvchi sahifalari (bugungi dars)
 
-- [ ] `category/<slug>/`, `product/<slug>/`, `seller/<pk-or-slug>/` ko'rinishidagi aniq URLlarni yaratish.
-- [ ] Eski parametrsiz demo URLlarni yangi URLlarga mos yo'naltirish yoki olib tashlash.
-- [ ] `CategoryView`da ota/bola kategoriyalar, mahsulot soni, faol mahsulotlar va breadcrumbni bazadan olish.
-- [ ] GET parametrlari orqali brend, minimal/maksimal narx, chegirma, reyting va mavjudlik filtrlarini ishlatish.
-- [ ] Ommabop, arzon, qimmat, reyting va yangi bo'yicha tartiblashni qo'shish.
-- [ ] Kategoriya va qidiruv natijalariga pagination hamda filter holatini saqlashni qo'shish.
+- [x] `category/<slug>/`, `product/<slug>/`, `seller/<pk-or-slug>/` ko'rinishidagi aniq URLlarni yaratish.
+- [x] Eski parametrsiz demo URLlarni yangi URLlarga mos yo'naltirish yoki olib tashlash.
+- [x] `CategoryView`da ota/bola kategoriyalar, mahsulot soni, faol mahsulotlar va breadcrumbni bazadan olish.
+- [x] GET parametrlari orqali brend, minimal/maksimal narx, chegirma, reyting va mavjudlik filtrlarini ishlatish.
+- [x] Ommabop, arzon, qimmat, reyting va yangi bo'yicha tartiblashni qo'shish.
+- [x] Kategoriya va qidiruv natijalariga pagination hamda filter holatini saqlashni qo'shish.
 - [ ] `ProductDetailView`da rasmlar galereyasi, narx, eski narx, qoldiq, variantlar, sotuvchi, reyting, sharhlar va o'xshash mahsulotlarni chiqarish.
 - [ ] Variant tanlanganda narx va qoldiqning frontendda yangilanishini yozish.
 - [ ] `SellerDetailView`da do'kon ma'lumoti, reytingi va faol mahsulotlarini bazadan chiqarish.

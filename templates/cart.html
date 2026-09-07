@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <main class="main">
@@ -9,7 +10,7 @@
             <section>
                 <div class="seller-box"><label><input type="checkbox" checked> <b>Zento Electronics</b></label>
                     <article class="cart-item"><input type="checkbox" checked><img
-                            src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=300&q=80">
+                            src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Samsung Galaxy A55 5G">
                         <div><b>Samsung Galaxy A55 5G, 8/256 GB</b>
                             <p>Rang: to‘q ko‘k · Ertaga yetkazamiz</p>
                             <div class="qty" data-qty>
@@ -20,7 +21,7 @@
                             <a href="#" style="color:var(--muted)">O‘chirish</a></div>
                         <strong>3 589 000 so‘m</strong></article>
                     <article class="cart-item"><input type="checkbox" checked><img
-                            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80">
+                            src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Sony simsiz quloqchin">
                         <div><b>Sony simsiz quloqchin, qora</b>
                             <p>Ertaga yetkazamiz</p>
                             <div class="qty" data-qty>

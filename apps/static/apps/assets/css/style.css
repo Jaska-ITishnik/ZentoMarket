@@ -577,6 +577,21 @@ button, input, select, textarea {
     margin-top: 0
 }
 
+.filter-form .field {
+    margin-bottom: 4px
+}
+
+.filter-actions {
+    display: grid;
+    gap: 8px;
+    margin-top: 22px
+}
+
+.filter-actions .btn {
+    width: 100%;
+    text-align: center
+}
+
 .check {
     display: block;
     padding: 6px 0;
@@ -611,6 +626,31 @@ button, input, select, textarea {
 .toolbar-actions {
     display: flex;
     gap: 8px
+}
+
+.filtered-product-grid {
+    grid-template-columns:repeat(4, 1fr)
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 28px
+}
+
+.pagination a,
+.pagination span {
+    padding: 9px 13px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fff
+}
+
+.pagination a:hover {
+    border-color: var(--primary);
+    color: var(--primary)
 }
 
 .chip {
@@ -738,6 +778,14 @@ button, input, select, textarea {
     display: flex;
     justify-content: space-between;
     align-items: center
+}
+
+.seller-logo {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+    object-fit: contain;
+    background: #fff
 }
 
 .option-row {

@@ -30,7 +30,7 @@
         <nav class="container category-nav">
             <a href="{% url 'apps:search' %}?discount=1">🔥 Haftalik chegirmalar</a>
             {% for category in navigation_categories %}
-                <a href="{% url 'apps:search' %}?category={{ category.slug|urlencode }}">{{ category.name }}</a>
+                <a href="{% url 'apps:category' slug=category.slug %}">{{ category.name }}</a>
             {% endfor %}
             <a href="{% url 'apps:catalog' %}">Yana ▾</a>
         </nav>
