@@ -31,7 +31,8 @@
                                     <b>{{ product.price|floatformat:"0g" }} so‘m</b>
                                     <span>★ {{ product.average_rating|floatformat:1 }} ({{ product.review_count }})</span>
                                     <span>{% if product.stock %}Mavjud{% else %}Sotuvda yo‘q{% endif %}</span>
-                                    <button class="btn btn-soft" type="button" data-cart>Savatga</button>
+                                    <button class="btn btn-soft" type="button" data-cart
+                                            data-cart-url="{% url 'apps:cart-add' product_id=product.pk %}">Savatga</button>
                                     <button class="btn btn-soft" type="button"
                                             data-compare-page-remove
                                             data-compare-remove-url="{% url 'apps:compare-remove' product_id=product.pk %}">

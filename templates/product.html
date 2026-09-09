@@ -91,7 +91,9 @@
                     </div>
                 </div>
                 <div class="detail-actions">
-                    <button class="btn btn-soft" type="button" data-cart data-purchase-action{% if not display_stock %} disabled{% endif %}>Savatga qo‘shish</button>
+                    <button class="btn btn-soft" type="button" data-cart
+                            data-cart-url="{% url 'apps:cart-add' product_id=product.pk %}"
+                            data-variant-input data-purchase-action{% if not display_stock %} disabled{% endif %}>Savatga qo‘shish</button>
                     <a class="btn{% if not display_stock %} is-disabled{% endif %}" href="{% url 'apps:checkout' %}"
                        data-purchase-action aria-disabled="{% if display_stock %}false{% else %}true{% endif %}">Hozir xarid qilish</a>
                 </div>

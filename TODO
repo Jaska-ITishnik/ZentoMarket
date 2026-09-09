@@ -108,16 +108,16 @@ Qabul mezoni: foydalanuvchi istalgan mahsulotni saqlaydi yoki taqqoslaydi, heade
 
 ## 5-dars — Savatning to'liq ishlashi
 
-- [ ] Foydalanuvchi uchun savatni avtomatik yaratish va barcha savat so'rovlarini bitta service qatlamida jamlash.
-- [ ] Mahsulot/variantni savatga POST orqali qo'shish, mavjud qator bo'lsa sonini oshirish.
-- [ ] Miqdorni oshirish/kamaytirish, qatorni o'chirish va savatni tozalash endpointlarini yaratish.
-- [ ] Variant qoldig'i va umumiy mahsulot qoldig'idan oshib ketishni bloklash.
-- [ ] Narxni savatga qo'shilgan vaqtda saqlash, ko'rsatishda joriy narx o'zgarganini aniqlash.
-- [ ] `cart.html`ni mahsulot, variant, dona narxi, subtotal va jami summa bilan dinamik qilish.
-- [ ] Header savat soni uchun context processor yozish.
-- [ ] Guest foydalanuvchini login sahifasiga qaytarish va kirgach oldingi amalni davom ettirish.
-- [ ] AJAX jarayonlari uchun loading, muvaffaqiyat, xato va bo'sh savat holatlarini yozish.
-- [ ] Savat biznes qoidalari va ruxsatlari uchun test yozish.
+- [x] Foydalanuvchi uchun savatni avtomatik yaratish va barcha savat so'rovlarini bitta service qatlamida jamlash.
+- [x] Mahsulot/variantni savatga POST orqali qo'shish, mavjud qator bo'lsa sonini oshirish.
+- [x] Miqdorni oshirish/kamaytirish, qatorni o'chirish va savatni tozalash endpointlarini yaratish.
+- [x] Variant qoldig'i va umumiy mahsulot qoldig'idan oshib ketishni bloklash.
+- [x] Narxni savatga qo'shilgan vaqtda saqlash, ko'rsatishda joriy narx o'zgarganini aniqlash.
+- [x] `cart.html`ni mahsulot, variant, dona narxi, subtotal va jami summa bilan dinamik qilish.
+- [x] Header savat soni uchun context processor yozish.
+- [x] Guest foydalanuvchini login sahifasiga qaytarish va kirgach oldingi amalni davom ettirish.
+- [x] AJAX jarayonlari uchun loading, muvaffaqiyat, xato va bo'sh savat holatlarini yozish.
+- [x] Savat biznes qoidalari va ruxsatlari uchun test yozish.
 
 
 

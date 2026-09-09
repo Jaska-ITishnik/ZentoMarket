@@ -365,11 +365,163 @@ compareClearButton?.addEventListener('click', async () => {
     }
 });
 
-$$('[data-cart]').forEach(b => b.addEventListener('click', () => {
-    const n = $('[data-cart-count]');
-    if (n) n.textContent = +n.textContent + 1;
-    toast('Mahsulot savatga qo‘shildi')
-}));
+const updateCartCount = (count) => {
+    $$('[data-cart-count]').forEach((counter) => {
+        counter.textContent = count;
+    });
+};
+
+const postCart = async (url, body = {}) => {
+    const formData = new URLSearchParams(body);
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'X-CSRFToken': $('meta[name="csrf-token"]')?.content || '',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+    });
+    if (response.redirected) {
+        window.location.assign(response.url);
+        return {};
+    }
+    if (!(response.headers.get('content-type') || '').includes('application/json')) {
+        throw new Error('Savatni yangilash uchun tizimga kiring.');
+    }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Savatni yangilab bo‘lmadi.');
+    return data;
+};
+
+const queueCartActionForLogin = (url, body) => {
+    sessionStorage.setItem('pending-cart-action', JSON.stringify({
+        url,
+        body,
+        returnUrl: `${window.location.pathname}${window.location.search}`,
+    }));
+    const loginUrl = document.body.dataset.loginUrl || '/login/';
+    const next = `${window.location.pathname}${window.location.search}`;
+    window.location.assign(`${loginUrl}?next=${encodeURIComponent(next)}`);
+};
+
+const resumePendingCartAction = async () => {
+    if (document.body.dataset.authenticated !== 'true') return;
+    const rawAction = sessionStorage.getItem('pending-cart-action');
+    if (!rawAction) return;
+    let action;
+    try {
+        action = JSON.parse(rawAction);
+    } catch {
+        sessionStorage.removeItem('pending-cart-action');
+        return;
+    }
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (!action.url || action.returnUrl !== currentUrl) return;
+
+    sessionStorage.removeItem('pending-cart-action');
+    try {
+        const data = await postCart(action.url, action.body || {});
+        updateCartCount(data.cart_count);
+        toast(data.message || 'Savatga qo‘shildi');
+    } catch (error) {
+        toast(error.message || 'Savatni yangilab bo‘lmadi.');
+    }
+};
+
+$$('[data-cart-url]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        if (document.body.dataset.authenticated !== 'true') {
+            const detail = button.closest('[data-product-detail]');
+            const variant = detail?.querySelector('[data-selected-variant]')?.value;
+            queueCartActionForLogin(button.dataset.cartUrl, variant ? {variant_id: variant} : {});
+            return;
+        }
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        try {
+            const detail = button.closest('[data-product-detail]');
+            const variant = detail?.querySelector('[data-selected-variant]')?.value;
+            const data = await postCart(button.dataset.cartUrl, variant ? {variant_id: variant} : {});
+            updateCartCount(data.cart_count);
+            toast(data.message);
+        } catch (error) {
+            toast(error.message || 'Savatni yangilab bo‘lmadi.');
+        } finally {
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+        }
+    });
+});
+
+resumePendingCartAction();
+
+const refreshCartPage = (data) => {
+    updateCartCount(data.cart_count);
+    $$('[data-cart-total]').forEach((node) => {
+        node.textContent = formatMoney(data.total);
+    });
+};
+
+$$('[data-cart-item]').forEach((item) => {
+    const quantityEl = $('[data-cart-quantity]', item);
+    $$('[data-step]', item).forEach((button) => {
+        button.addEventListener('click', async () => {
+            const current = Number(quantityEl.textContent);
+            const quantity = Math.max(1, current + (button.dataset.step === 'up' ? 1 : -1));
+            if (quantity === current) return;
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+            try {
+                const data = await postCart(item.dataset.cartUpdateUrl, {quantity});
+                quantityEl.textContent = data.quantity;
+                $('[data-cart-subtotal]', item).textContent = formatMoney(data.subtotal);
+                refreshCartPage(data);
+            } catch (error) {
+                toast(error.message || 'Miqdorni yangilab bo‘lmadi.');
+            } finally {
+                button.disabled = false;
+                button.removeAttribute('aria-busy');
+            }
+        });
+    });
+
+    $('[data-cart-remove]', item)?.addEventListener('click', async () => {
+        const removeButton = $('[data-cart-remove]', item);
+        removeButton.disabled = true;
+        removeButton.setAttribute('aria-busy', 'true');
+        try {
+            const data = await postCart(item.dataset.cartRemoveUrl);
+            item.remove();
+            refreshCartPage(data);
+            if (!document.querySelector('[data-cart-item]')) window.location.reload();
+            else toast(data.message);
+        } catch (error) {
+            toast(error.message || 'Mahsulotni o‘chirib bo‘lmadi.');
+        } finally {
+            removeButton.disabled = false;
+            removeButton.removeAttribute('aria-busy');
+        }
+    });
+});
+
+const cartClearButton = $('[data-cart-clear-url]');
+cartClearButton?.addEventListener('click', async () => {
+    cartClearButton.disabled = true;
+    cartClearButton.setAttribute('aria-busy', 'true');
+    try {
+        const data = await postCart(cartClearButton.dataset.cartClearUrl);
+        updateCartCount(data.cart_count);
+        window.location.reload();
+    } catch (error) {
+        toast(error.message || 'Savatni tozalab bo‘lmadi.');
+    } finally {
+        cartClearButton.disabled = false;
+        cartClearButton.removeAttribute('aria-busy');
+    }
+});
+
 $$('[data-qty]').forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => {
     const s = $('span', g);
     s.textContent = Math.max(1, +s.textContent + (b.dataset.step === 'up' ? 1 : -1))

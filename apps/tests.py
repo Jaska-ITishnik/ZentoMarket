@@ -4,7 +4,20 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils.text import slugify
 
-from .models import Brand, Category, Order, OrderItem, Product, Review, Seller, User, Wishlist
+from .models import (
+    Brand,
+    Cart,
+    CartItem,
+    Category,
+    Order,
+    OrderItem,
+    Product,
+    ProductVariant,
+    Review,
+    Seller,
+    User,
+    Wishlist,
+)
 
 
 class AuthenticationFlowTests(TestCase):
@@ -610,3 +623,86 @@ class StorefrontTests(TestCase):
         csrf_client = Client(enforce_csrf_checks=True)
         add_url = reverse("apps:compare-add", kwargs={"product_id": self.discount_product.pk})
         self.assertEqual(csrf_client.post(add_url).status_code, 403)
+
+    def test_cart_requires_login_and_is_created_for_authenticated_user(self):
+        cart_url = reverse("apps:cart")
+        self.assertRedirects(
+            self.client.get(cart_url),
+            f"{reverse('apps:login')}?next={cart_url}",
+        )
+        self.client.force_login(self.customer)
+        response = self.client.get(cart_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Cart.objects.filter(user=self.customer).exists())
+        self.assertContains(response, "Savat bo‘sh")
+
+    def test_guest_cart_add_redirects_to_login_with_original_action(self):
+        add_url = reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk})
+        response = self.client.post(add_url)
+        self.assertRedirects(
+            response,
+            f"{reverse('apps:login')}?next={add_url}",
+        )
+
+    def test_cart_add_merges_items_and_stores_price_snapshot(self):
+        self.client.force_login(self.customer)
+        url = reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk})
+
+        first = self.client.post(url)
+        second = self.client.post(url, {"quantity": 2})
+
+        self.assertEqual(first.json()["cart_count"], 1)
+        self.assertEqual(second.json()["cart_count"], 3)
+        item = CartItem.objects.get(cart__user=self.customer)
+        self.assertEqual(item.quantity, 3)
+        self.assertEqual(item.price, self.discount_product.price)
+
+        self.discount_product.price = Decimal("850000")
+        self.discount_product.save(update_fields=("price",))
+        response = self.client.get(reverse("apps:cart"))
+        self.assertContains(response, "Joriy narx")
+        self.assertTrue(response.context["cart_items"][0].price_changed)
+        self.assertContains(response, 'data-cart-count>3</b>')
+
+    def test_cart_variant_price_and_stock_limits_are_enforced(self):
+        variant = ProductVariant.objects.create(
+            product=self.discount_product,
+            name="8/256 GB",
+            sku="TEST-VARIANT",
+            extra_price=Decimal("50000"),
+            stock=2,
+        )
+        self.client.force_login(self.customer)
+        url = reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk})
+
+        added = self.client.post(url, {"variant_id": variant.pk, "quantity": 2})
+        blocked = self.client.post(url, {"variant_id": variant.pk})
+
+        self.assertEqual(added.status_code, 200)
+        self.assertEqual(added.json()["cart_count"], 2)
+        self.assertEqual(blocked.status_code, 400)
+        self.assertEqual(blocked.json()["code"], "insufficient_stock")
+        item = CartItem.objects.get(cart__user=self.customer)
+        self.assertEqual(item.price, variant.final_price)
+
+    def test_cart_update_remove_and_clear(self):
+        self.client.force_login(self.customer)
+        add_url = reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk})
+        self.client.post(add_url, {"quantity": 2})
+        item = CartItem.objects.get(cart__user=self.customer)
+
+        updated = self.client.post(
+            reverse("apps:cart-update", kwargs={"item_id": item.pk}),
+            {"quantity": 3},
+        )
+        self.assertEqual(updated.json()["quantity"], 3)
+        removed = self.client.post(
+            reverse("apps:cart-remove", kwargs={"item_id": item.pk})
+        )
+        self.assertTrue(removed.json()["removed"])
+        self.assertFalse(CartItem.objects.filter(pk=item.pk).exists())
+
+        self.client.post(add_url)
+        cleared = self.client.post(reverse("apps:cart-clear"))
+        self.assertTrue(cleared.json()["changed"])
+        self.assertFalse(CartItem.objects.filter(cart__user=self.customer).exists())

@@ -35,6 +35,7 @@
             <span class="old-price">{{ product.old_price|floatformat:"0g" }} so‘m</span>
         {% endif %}
         <b class="price">{{ product.price|floatformat:"0g" }} so‘m</b>
-        <button class="cart-fab" type="button" data-cart>🛒</button>
+        <button class="cart-fab" type="button" data-cart
+                data-cart-url="{% url 'apps:cart-add' product_id=product.pk %}">🛒</button>
     </div>
 </article>

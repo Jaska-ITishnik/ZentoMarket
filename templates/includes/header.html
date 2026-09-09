@@ -26,7 +26,7 @@
                 <a class="head-link" href="{% url 'apps:compare' %}"><span>⇄</span><small>Taqqoslash</small><b class="counter" data-compare-count>{{ compare_count }}</b></a>
                 <a class="head-link" href="{% url 'apps:wishlist' %}"><span>♡</span><small>Sevimlilar</small><b class="counter" data-wishlist-count>{{ wishlist_count }}</b></a>
                 <a class="head-link" href="{% url 'apps:cart' %}">
-                    <span>🛒</span><small>Savat</small><b class="counter" data-cart-count>2</b>
+                    <span>🛒</span><small>Savat</small><b class="counter" data-cart-count>{{ cart_count }}</b>
                 </a>
             </div>
         {% endif %}

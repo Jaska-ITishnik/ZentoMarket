@@ -21,6 +21,15 @@ from .compare import (
     get_compare_ids,
     remove_from_compare,
 )
+from .cart_service import (
+    CartValidationError,
+    add_item,
+    cart_totals,
+    clear_cart,
+    get_or_create_cart,
+    remove_item,
+    update_item_quantity,
+)
 from .forms import EmailAuthenticationForm, UserRegistrationForm
 from .models import Brand, Category, Order, OrderItem, Product, ProductImage, Seller, Wishlist
 
@@ -298,6 +307,97 @@ class WishlistToggleView(LoginRequiredMixin, View):
                     if is_wishlisted
                     else "Sevimlilardan olib tashlandi"
                 ),
+            }
+        )
+
+
+class CartView(LoginRequiredMixin, TemplateView):
+    template_name = "cart.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart = get_or_create_cart(self.request.user)
+        items, total, quantity = cart_totals(cart)
+        context.update(
+            {
+                "page_title": "Savat — Zento",
+                "cart": cart,
+                "cart_items": items,
+                "cart_total": total,
+                "cart_quantity": quantity,
+            }
+        )
+        return context
+
+
+class CartAddView(LoginRequiredMixin, View):
+    def post(self, request, product_id):
+        try:
+            item, created = add_item(
+                request.user,
+                product_id,
+                request.POST.get("variant_id") or None,
+                request.POST.get("quantity", 1),
+            )
+        except CartValidationError as error:
+            return JsonResponse({"error": error.message, "code": error.code}, status=400)
+        _, _, quantity = cart_totals(item.cart)
+        return JsonResponse(
+            {
+                "created": created,
+                "item_id": item.pk,
+                "quantity": item.quantity,
+                "cart_count": quantity,
+                "message": "Savatga qo‘shildi",
+            }
+        )
+
+
+class CartUpdateView(LoginRequiredMixin, View):
+    def post(self, request, item_id):
+        try:
+            item = update_item_quantity(
+                request.user, item_id, request.POST.get("quantity")
+            )
+        except CartValidationError as error:
+            return JsonResponse({"error": error.message, "code": error.code}, status=400)
+        _, total, quantity = cart_totals(item.cart)
+        return JsonResponse(
+            {
+                "item_id": item.pk,
+                "quantity": item.quantity,
+                "subtotal": f"{item.price * item.quantity:.2f}",
+                "total": f"{total:.2f}",
+                "cart_count": quantity,
+            }
+        )
+
+
+class CartRemoveView(LoginRequiredMixin, View):
+    def post(self, request, item_id):
+        removed = remove_item(request.user, item_id)
+        cart = get_or_create_cart(request.user)
+        _, total, quantity = cart_totals(cart)
+        return JsonResponse(
+            {
+                "removed": removed,
+                "total": f"{total:.2f}",
+                "cart_count": quantity,
+                "message": "Mahsulot savatdan olib tashlandi"
+                if removed
+                else "Savat qatori topilmadi",
+            }
+        )
+
+
+class CartClearView(LoginRequiredMixin, View):
+    def post(self, request):
+        changed = clear_cart(request.user)
+        return JsonResponse(
+            {
+                "changed": changed,
+                "cart_count": 0,
+                "message": "Savat tozalandi",
             }
         )
 
