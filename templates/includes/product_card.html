@@ -1,0 +1,29 @@
+{% load static %}
+<article class="product">
+    <div class="product-img">
+        {% if product.card_images %}
+            <img src="{{ product.card_images.0.image.url }}" alt="{{ product.name }}">
+        {% elif product.category.image %}
+            <img src="{{ product.category.image.url }}" alt="{{ product.name }}">
+        {% else %}
+            <img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="{{ product.name }}" class="product-placeholder-image">
+        {% endif %}
+        {% if product.discount_percent %}
+            <span class="product-label">-{{ product.discount_percent }}%</span>
+        {% endif %}
+        <button class="heart" type="button" aria-label="Sevimlilarga qo‘shish">♡</button>
+    </div>
+    <div class="product-body">
+        <a href="{% url 'apps:product' slug=product.slug %}"><p class="product-title">{{ product.name }}</p></a>
+        <span class="rating">★ {{ product.average_rating|floatformat:1 }}
+            <i class="review">({{ product.review_count }})</i>
+        </span>
+        {% if product.sales_count %}<span class="sales-count">{{ product.sales_count }} ta buyurtma</span>{% endif %}
+        <span class="installment">{{ product.installment_price|floatformat:"0g" }} so‘m × 12 oy</span>
+        {% if product.discount_percent %}
+            <span class="old-price">{{ product.old_price|floatformat:"0g" }} so‘m</span>
+        {% endif %}
+        <b class="price">{{ product.price|floatformat:"0g" }} so‘m</b>
+        <button class="cart-fab" type="button" data-cart>🛒</button>
+    </div>
+</article>

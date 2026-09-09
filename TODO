@@ -99,6 +99,12 @@ Qabul mezoni: bosh sahifa, katalog yoki qidiruvdan bosilgan har bir kategoriya, 
 
 Qabul mezoni: foydalanuvchi istalgan mahsulotni saqlaydi yoki taqqoslaydi, header sonlari darhol yangilanadi va ma'lumot sahifa yangilanganda saqlanadi.
 
+
+
+
+
+
+
 ## 5-dars — Savatning to'liq ishlashi
 
 - [ ] Foydalanuvchi uchun savatni avtomatik yaratish va barcha savat so'rovlarini bitta service qatlamida jamlash.
