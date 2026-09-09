@@ -1,10 +1,10 @@
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils.text import slugify
 
-from .models import Brand, Category, Order, OrderItem, Product, Review, Seller, User
+from .models import Brand, Category, Order, OrderItem, Product, Review, Seller, User, Wishlist
 
 
 class AuthenticationFlowTests(TestCase):
@@ -194,6 +194,50 @@ class StorefrontTests(TestCase):
         self.assertContains(response, self.discount_product.name)
         self.assertNotContains(response, self.best_seller.name)
         self.assertEqual(response.context["result_count"], 1)
+
+    def test_search_suggestions_return_matching_product_data(self):
+        response = self.client.get(
+            reverse("apps:search-suggestions"), {"q": "samsung"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["results"],
+            [
+                {
+                    "name": self.discount_product.name,
+                    "url": reverse(
+                        "apps:product", kwargs={"slug": self.discount_product.slug}
+                    ),
+                    "image_url": "",
+                    "price": f"{self.discount_product.price:.2f}",
+                    "category": self.phones.name,
+                }
+            ],
+        )
+
+    def test_search_suggestions_require_two_characters_and_exclude_inactive_products(self):
+        self.discount_product.is_active = False
+        self.discount_product.save(update_fields=("is_active",))
+
+        short_query = self.client.get(
+            reverse("apps:search-suggestions"), {"q": "s"}
+        )
+        inactive_query = self.client.get(
+            reverse("apps:search-suggestions"), {"q": "samsung"}
+        )
+
+        self.assertEqual(short_query.json(), {"results": []})
+        self.assertEqual(inactive_query.json(), {"results": []})
+
+    def test_header_search_exposes_ajax_suggestions_endpoint(self):
+        response = self.client.get(reverse("apps:index"))
+
+        self.assertContains(response, "data-search-form")
+        self.assertContains(
+            response,
+            f'data-suggestions-url="{reverse("apps:search-suggestions")}"',
+        )
 
     def test_search_can_filter_by_category_brand_and_discount(self):
         category_response = self.client.get(reverse("apps:search"), {"category": "audio"})
@@ -413,3 +457,156 @@ class StorefrontTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["seller"], self.seller)
+
+    def test_wishlist_pages_and_toggle_require_login(self):
+        wishlist_url = reverse("apps:wishlist")
+        toggle_url = reverse(
+            "apps:wishlist-toggle", kwargs={"product_id": self.discount_product.pk}
+        )
+
+        self.assertRedirects(
+            self.client.get(wishlist_url),
+            f"{reverse('apps:login')}?next={wishlist_url}",
+        )
+        self.assertRedirects(
+            self.client.post(toggle_url),
+            f"{reverse('apps:login')}?next={toggle_url}",
+        )
+
+    def test_wishlist_toggle_adds_then_removes_product(self):
+        self.client.force_login(self.customer)
+        url = reverse(
+            "apps:wishlist-toggle", kwargs={"product_id": self.discount_product.pk}
+        )
+
+        added = self.client.post(url)
+        self.assertEqual(added.status_code, 200)
+        self.assertEqual(
+            added.json(),
+            {
+                "is_wishlisted": True,
+                "wishlist_count": 1,
+                "message": "Sevimlilarga qo‘shildi",
+            },
+        )
+        self.assertTrue(
+            Wishlist.objects.filter(
+                user=self.customer, product=self.discount_product
+            ).exists()
+        )
+
+        removed = self.client.post(url)
+        self.assertEqual(removed.status_code, 200)
+        self.assertFalse(removed.json()["is_wishlisted"])
+        self.assertEqual(removed.json()["wishlist_count"], 0)
+        self.assertFalse(Wishlist.objects.filter(user=self.customer).exists())
+
+    def test_wishlist_toggle_only_accepts_post_and_checks_csrf(self):
+        url = reverse(
+            "apps:wishlist-toggle", kwargs={"product_id": self.discount_product.pk}
+        )
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.customer)
+
+        self.assertEqual(csrf_client.get(url).status_code, 405)
+        self.assertEqual(csrf_client.post(url).status_code, 403)
+
+        csrf_client.get(reverse("apps:product", kwargs={"slug": self.discount_product.slug}))
+        csrf_token = csrf_client.cookies["csrftoken"].value
+        response = csrf_client.post(url, HTTP_X_CSRFTOKEN=csrf_token)
+        self.assertEqual(response.status_code, 200)
+
+    def test_wishlist_page_is_dynamic_and_renders_empty_state(self):
+        self.client.force_login(self.customer)
+        empty_response = self.client.get(reverse("apps:wishlist"))
+
+        self.assertContains(empty_response, "Sevimlilar ro‘yxati bo‘sh")
+        self.assertNotContains(empty_response, self.discount_product.name)
+
+        Wishlist.objects.create(user=self.customer, product=self.discount_product)
+        populated_response = self.client.get(reverse("apps:wishlist"))
+        self.assertEqual(populated_response.context["product_count"], 1)
+        self.assertContains(populated_response, self.discount_product.name)
+        self.assertContains(populated_response, "1 ta mahsulot")
+
+    def test_database_wishlist_state_is_rendered_on_cards_detail_and_header(self):
+        Wishlist.objects.create(user=self.customer, product=self.discount_product)
+        self.client.force_login(self.customer)
+
+        home_response = self.client.get(reverse("apps:index"))
+        detail_response = self.client.get(
+            reverse("apps:product", kwargs={"slug": self.discount_product.slug})
+        )
+
+        self.assertContains(home_response, 'data-wishlist-count>1</b>')
+        self.assertContains(
+            home_response,
+            f'data-wishlist-product="{self.discount_product.pk}"',
+        )
+        self.assertContains(detail_response, 'aria-pressed="true"')
+        self.assertContains(detail_response, "Sevimlilardan olib tashlash")
+
+    def test_compare_is_session_backed_and_renders_dynamic_products(self):
+        add_url = reverse("apps:compare-add", kwargs={"product_id": self.discount_product.pk})
+        self.assertEqual(self.client.post(add_url).status_code, 200)
+
+        response = self.client.get(reverse("apps:compare"))
+        self.assertEqual(response.context["product_count"], 1)
+        self.assertContains(response, self.discount_product.name)
+        self.assertContains(response, self.discount_product.sku)
+        self.assertContains(response, "Brend")
+
+        refreshed_client = Client()
+        session = self.client.session
+        refreshed_client.cookies["sessionid"] = session.session_key
+        refreshed_response = refreshed_client.get(reverse("apps:compare"))
+        self.assertContains(refreshed_response, self.discount_product.name)
+
+    def test_compare_rejects_duplicate_different_category_and_more_than_four(self):
+        same_category = [
+            Product.objects.create(
+                seller=self.seller,
+                category=self.phones,
+                name=f"Compare phone {index}",
+                slug=f"compare-phone-{index}",
+                sku=f"COMPARE-PHONE-{index}",
+                price=Decimal("500000") + index,
+                stock=5,
+            )
+            for index in range(1, 6)
+        ]
+        add = lambda product: self.client.post(
+            reverse("apps:compare-add", kwargs={"product_id": product.pk})
+        )
+
+        first = add(self.discount_product)
+        duplicate = add(self.discount_product)
+        self.assertTrue(first.json()["is_compared"])
+        self.assertFalse(duplicate.json()["changed"])
+        for product in same_category[:3]:
+            self.assertEqual(add(product).status_code, 200)
+
+        limited = add(same_category[3])
+        self.assertEqual(limited.status_code, 400)
+        self.assertEqual(limited.json()["code"], "limit_reached")
+        mismatch = add(self.best_seller)
+        self.assertEqual(mismatch.status_code, 400)
+        self.assertEqual(mismatch.json()["code"], "category_mismatch")
+
+    def test_compare_remove_clear_and_empty_state(self):
+        add_url = reverse("apps:compare-add", kwargs={"product_id": self.discount_product.pk})
+        remove_url = reverse("apps:compare-remove", kwargs={"product_id": self.discount_product.pk})
+        clear_url = reverse("apps:compare-clear")
+
+        self.assertEqual(self.client.get(add_url).status_code, 405)
+        self.client.post(add_url)
+        self.assertEqual(self.client.post(remove_url).json()["compare_count"], 0)
+        self.assertFalse(self.client.get(reverse("apps:compare")).context["products"])
+        self.client.post(add_url)
+        self.assertEqual(self.client.post(clear_url).json()["compare_count"], 0)
+        self.assertContains(self.client.get(reverse("apps:compare")), "Taqqoslash ro‘yxati bo‘sh")
+
+    def test_compare_mutations_require_csrf(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        add_url = reverse("apps:compare-add", kwargs={"product_id": self.discount_product.pk})
+        self.assertEqual(csrf_client.post(add_url).status_code, 403)

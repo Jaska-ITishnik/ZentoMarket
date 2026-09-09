@@ -19,7 +19,7 @@ Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalar
 - [x] Bosh sahifadagi kategoriyalar, chegirmalar, ko'p sotilgan mahsulotlar va mashhur brendlar bazadan olinadi.
 - [x] Katalog kategoriyalari bazadan olinadi.
 - [x] Qidiruv nom, tavsif, SKU, brend, kategoriya va sotuvchi bo'yicha ishlaydi; kategoriya, brend, chegirma va tartiblash parametrlari mavjud.
-- [x] Autentifikatsiya va storefront uchun 24 ta avtomatik test yozilgan.
+- [x] Autentifikatsiya va storefront uchun 34 ta avtomatik test yozilgan.
 
 ### Hali statik yoki to'liq ishlamaydigan qismlar
 
@@ -49,6 +49,7 @@ Natija: elektron magazinning ma'lumotlar qatlami tayyor.
 - [x] `seed_market` orqali realistik demo katalog yaratish.
 - [x] Register, login va logout oqimini backend bilan ishlatish.
 - [x] Bosh sahifa, katalog va qidiruvni bazadagi ma'lumotlarga bog'lash.
+- [x] Header qidiruvida AJAX orqali avtomatik mahsulot takliflarini chiqarish.
 - [x] Ushbu oqimlar uchun boshlang'ich testlarni yozish.
 
 Natija: foydalanuvchi tizimga kirishi, katalogni ko'rishi va mahsulot qidirishi mumkin.
@@ -87,15 +88,15 @@ Qabul mezoni: bosh sahifa, katalog yoki qidiruvdan bosilgan har bir kategoriya, 
 
 ## 4-dars — Sevimlilar va mahsulotlarni taqqoslash
 
-- [ ] Sevimliga qo'shish/o'chirish uchun faqat autentifikatsiyadan o'tgan foydalanuvchiga ruxsat beruvchi POST endpoint yaratish.
-- [ ] `wishlist.html`ni `Wishlist` modeli bilan dinamik qilish va bo'sh holatni chiqarish.
-- [ ] Mahsulot kartasi/detaildagi yurak holatini bazadagi holat bilan sinxronlash.
-- [ ] Fetch/AJAX javobida CSRF, xatolik, login redirect va header counterini boshqarish.
-- [ ] Taqqoslash ro'yxatini sessionda saqlash; bir kategoriya ichidan maksimal 4 mahsulot qoidasi qo'yish.
-- [ ] Taqqoslashga qo'shish/o'chirish/tozalash amallarini yaratish.
-- [ ] `compare.html`da mahsulot rasmi, narxi, reytingi, mavjudligi va umumiy xususiyatlarini dinamik jadvalda ko'rsatish.
-- [ ] Sahifa yangilanganda wishlist va compare holati yo'qolmasligini tekshirish.
-- [ ] Ruxsat, takroriy qo'shish, limit va bo'sh holatlar uchun test yozish.
+- [x] Sevimliga qo'shish/o'chirish uchun faqat autentifikatsiyadan o'tgan foydalanuvchiga ruxsat beruvchi POST endpoint yaratish.
+- [x] `wishlist.html`ni `Wishlist` modeli bilan dinamik qilish va bo'sh holatni chiqarish.
+- [x] Mahsulot kartasi/detaildagi yurak holatini bazadagi holat bilan sinxronlash.
+- [x] Fetch/AJAX javobida CSRF, xatolik, login redirect va header counterini boshqarish.
+- [x] Taqqoslash ro'yxatini sessionda saqlash; bir kategoriya ichidan maksimal 4 mahsulot qoidasi qo'yish.
+- [x] Taqqoslashga qo'shish/o'chirish/tozalash amallarini yaratish.
+- [x] `compare.html`da mahsulot rasmi, narxi, reytingi, mavjudligi va umumiy xususiyatlarini dinamik jadvalda ko'rsatish.
+- [x] Sahifa yangilanganda wishlist va compare holati yo'qolmasligini tekshirish.
+- [x] Ruxsat, takroriy qo'shish, limit va bo'sh holatlar uchun test yozish.
 
 Qabul mezoni: foydalanuvchi istalgan mahsulotni saqlaydi yoki taqqoslaydi, header sonlari darhol yangilanadi va ma'lumot sahifa yangilanganda saqlanadi.
 
@@ -117,6 +118,11 @@ Qabul mezoni: foydalanuvchi istalgan mahsulotni saqlaydi yoki taqqoslaydi, heade
 - [ ] Guest foydalanuvchini login sahifasiga qaytarish va kirgach oldingi amalni davom ettirish.
 - [ ] AJAX jarayonlari uchun loading, muvaffaqiyat, xato va bo'sh savat holatlarini yozish.
 - [ ] Savat biznes qoidalari va ruxsatlari uchun test yozish.
+
+
+
+
+
 
 Qabul mezoni: savatdagi har bir amal bazaga yoziladi, jami summalar serverda hisoblanadi va qoldiq qoidalari buzilmaydi.
 

@@ -4,9 +4,14 @@
         <a class="logo" href="{% url 'apps:index' %}">zento<i>.</i></a>
         {% if not compact_layout %}
             <a class="catalog-btn" href="{% url 'apps:catalog' %}">☰ Katalog</a>
-            <form class="search" action="{% url 'apps:search' %}" method="get">
-                <input name="q" value="{{ request.GET.q }}" placeholder="Mahsulotlar va turkumlarni qidiring">
+            <form class="search" action="{% url 'apps:search' %}" method="get"
+                  data-search-form data-suggestions-url="{% url 'apps:search-suggestions' %}">
+                <input name="q" value="{{ request.GET.q }}" placeholder="Mahsulotlar va turkumlarni qidiring"
+                       autocomplete="off" role="combobox" aria-autocomplete="list"
+                       aria-expanded="false" aria-controls="search-suggestions">
                 <button type="submit" aria-label="Qidirish">⌕</button>
+                <div class="search-suggestions" id="search-suggestions" role="listbox"
+                     aria-label="Qidiruv takliflari" data-search-suggestions hidden></div>
             </form>
             <div class="head-actions">
                 {% if request.user.is_authenticated %}
@@ -18,8 +23,8 @@
                 {% else %}
                     <a class="head-link" href="{% url 'apps:login' %}"><span>♙</span><small>Kirish</small></a>
                 {% endif %}
-                <a class="head-link" href="{% url 'apps:compare' %}"><span>⇄</span><small>Taqqoslash</small></a>
-                <a class="head-link" href="{% url 'apps:wishlist' %}"><span>♡</span><small>Sevimlilar</small></a>
+                <a class="head-link" href="{% url 'apps:compare' %}"><span>⇄</span><small>Taqqoslash</small><b class="counter" data-compare-count>{{ compare_count }}</b></a>
+                <a class="head-link" href="{% url 'apps:wishlist' %}"><span>♡</span><small>Sevimlilar</small><b class="counter" data-wishlist-count>{{ wishlist_count }}</b></a>
                 <a class="head-link" href="{% url 'apps:cart' %}">
                     <span>🛒</span><small>Savat</small><b class="counter" data-cart-count>2</b>
                 </a>

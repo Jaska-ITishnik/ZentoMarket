@@ -2,65 +2,62 @@
 {% load static %}
 
 {% block content %}
-<main class="main">
+<main class="main" data-compare-page>
     <div class="container">
-        <div class="breadcrumbs">Bosh sahifa / Taqqoslash</div>
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Taqqoslash</div>
         <h1 class="page-title">Mahsulotlarni taqqoslash</h1>
-        <div class="compare-wrap">
-            <table class="compare-table">
-                <tr>
-                    <th>Xususiyat</th>
-                    <th><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Samsung Galaxy A55">Samsung
-                        Galaxy A55<br><b>3 589 000 so‘m</b><br>
-                        <button class="btn" data-cart>Savatga</button>
-                    </th>
-                    <th><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Xiaomi Redmi Note 13 Pro">Xiaomi
-                        Redmi Note 13 Pro<br><b>2 989 000 so‘m</b><br>
-                        <button class="btn" data-cart>Savatga</button>
-                    </th>
-                    <th><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Apple iPhone 15 Pro">Apple
-                        iPhone 15 Pro<br><b>14 389 000 so‘m</b><br>
-                        <button class="btn" data-cart>Savatga</button>
-                    </th>
-                </tr>
-                <tr>
-                    <td>Reyting</td>
-                    <td>★ 4.9</td>
-                    <td>★ 4.8</td>
-                    <td>★ 5.0</td>
-                </tr>
-                <tr>
-                    <td>Ekran</td>
-                    <td>6.6" AMOLED</td>
-                    <td>6.67" AMOLED</td>
-                    <td>6.1" OLED</td>
-                </tr>
-                <tr>
-                    <td>Xotira</td>
-                    <td>8/256 GB</td>
-                    <td>8/256 GB</td>
-                    <td>8/256 GB</td>
-                </tr>
-                <tr>
-                    <td>Kamera</td>
-                    <td>50 MP</td>
-                    <td>200 MP</td>
-                    <td>48 MP</td>
-                </tr>
-                <tr>
-                    <td>Batareya</td>
-                    <td>5000 mAh</td>
-                    <td>5100 mAh</td>
-                    <td>3274 mAh</td>
-                </tr>
-                <tr>
-                    <td>Kafolat</td>
-                    <td>12 oy</td>
-                    <td>12 oy</td>
-                    <td>12 oy</td>
-                </tr>
-            </table>
-        </div>
+        {% if products %}
+            <div class="toolbar">
+                <span>{{ product_count }} ta mahsulot</span>
+                <button class="btn btn-soft" type="button" data-compare-clear-url="{% url 'apps:compare-clear' %}">
+                    Ro‘yxatni tozalash
+                </button>
+            </div>
+            <div class="compare-wrap">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Xususiyat</th>
+                            {% for product in products %}
+                                <th scope="col" data-compare-column="{{ product.pk }}">
+                                    {% if product.card_images %}
+                                        <img src="{{ product.card_images.0.image.url }}" alt="{{ product.name }}">
+                                    {% elif product.category.image %}
+                                        <img src="{{ product.category.image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                        <img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="{{ product.name }}">
+                                    {% endif %}
+                                    <a href="{% url 'apps:product' slug=product.slug %}">{{ product.name }}</a>
+                                    <b>{{ product.price|floatformat:"0g" }} so‘m</b>
+                                    <span>★ {{ product.average_rating|floatformat:1 }} ({{ product.review_count }})</span>
+                                    <span>{% if product.stock %}Mavjud{% else %}Sotuvda yo‘q{% endif %}</span>
+                                    <button class="btn btn-soft" type="button" data-cart>Savatga</button>
+                                    <button class="btn btn-soft" type="button"
+                                            data-compare-page-remove
+                                            data-compare-remove-url="{% url 'apps:compare-remove' product_id=product.pk %}">
+                                        O‘chirish
+                                    </button>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><th scope="row">Brend</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{{ product.brand.name|default:"—" }}</td>{% endfor %}</tr>
+                        <tr><th scope="row">Kategoriya</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{{ product.category.name }}</td>{% endfor %}</tr>
+                        <tr><th scope="row">SKU</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{{ product.sku }}</td>{% endfor %}</tr>
+                        <tr><th scope="row">Qoldiq</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{% if product.stock %}{{ product.stock }} dona{% else %}Sotuvda yo‘q{% endif %}</td>{% endfor %}</tr>
+                        <tr><th scope="row">Sotuvchi</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{{ product.seller.store_name }}</td>{% endfor %}</tr>
+                        <tr><th scope="row">Tavsif</th>{% for product in products %}<td data-compare-column="{{ product.pk }}">{{ product.description|default:"—"|truncatewords:25 }}</td>{% endfor %}</tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>Taqqoslash ro‘yxati bo‘sh</h3>
+                <p>Mahsulot kartasidagi ⇄ tugmasi orqali mahsulot qo‘shing.</p>
+                <a class="btn" href="{% url 'apps:catalog' %}">Katalogga o‘tish</a>
+            </div>
+        {% endif %}
     </div>
 </main>
 {% endblock %}

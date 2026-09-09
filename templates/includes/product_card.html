@@ -1,5 +1,5 @@
 {% load static %}
-<article class="product">
+<article class="product" data-product-card="{{ product.pk }}">
     <div class="product-img">
         {% if product.card_images %}
             <img src="{{ product.card_images.0.image.url }}" alt="{{ product.name }}">
@@ -11,7 +11,18 @@
         {% if product.discount_percent %}
             <span class="product-label">-{{ product.discount_percent }}%</span>
         {% endif %}
-        <button class="heart" type="button" aria-label="Sevimlilarga qo‘shish">♡</button>
+        <button class="heart{% if product.pk in wishlist_product_ids %} is-active{% endif %}" type="button"
+                data-wishlist-product="{{ product.pk }}"
+                data-wishlist-url="{% url 'apps:wishlist-toggle' product_id=product.pk %}"
+                aria-label="{% if product.pk in wishlist_product_ids %}Sevimlilardan olib tashlash{% else %}Sevimlilarga qo‘shish{% endif %}"
+                aria-pressed="{% if product.pk in wishlist_product_ids %}true{% else %}false{% endif %}">{% if product.pk in wishlist_product_ids %}♥{% else %}♡{% endif %}</button>
+        <button class="compare-toggle{% if product.pk in compare_product_ids %} is-active{% endif %}" type="button"
+                data-compare-product="{{ product.pk }}"
+                data-compare-add-url="{% url 'apps:compare-add' product_id=product.pk %}"
+                data-compare-remove-url="{% url 'apps:compare-remove' product_id=product.pk %}"
+                data-compared="{% if product.pk in compare_product_ids %}true{% else %}false{% endif %}"
+                aria-label="{% if product.pk in compare_product_ids %}Taqqoslashdan olib tashlash{% else %}Taqqoslashga qo‘shish{% endif %}"
+                aria-pressed="{% if product.pk in compare_product_ids %}true{% else %}false{% endif %}">{% if product.pk in compare_product_ids %}✓{% else %}⇄{% endif %}</button>
     </div>
     <div class="product-body">
         <a href="{% url 'apps:product' slug=product.slug %}"><p class="product-title">{{ product.name }}</p></a>

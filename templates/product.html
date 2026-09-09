@@ -42,7 +42,19 @@
                 <div>
                     <span class="rating">★ {{ product.average_rating|floatformat:1 }}</span>
                     · {{ product.review_count }} sharh · {{ sales_count }} buyurtma
-                    <button class="heart" type="button" style="position:static;float:right">♡</button>
+                    <button class="heart{% if product.pk in wishlist_product_ids %} is-active{% endif %}" type="button"
+                            data-wishlist-product="{{ product.pk }}"
+                            data-wishlist-url="{% url 'apps:wishlist-toggle' product_id=product.pk %}"
+                            aria-label="{% if product.pk in wishlist_product_ids %}Sevimlilardan olib tashlash{% else %}Sevimlilarga qo‘shish{% endif %}"
+                            aria-pressed="{% if product.pk in wishlist_product_ids %}true{% else %}false{% endif %}"
+                            style="position:static;float:right">{% if product.pk in wishlist_product_ids %}♥{% else %}♡{% endif %}</button>
+                    <button class="compare-toggle detail-compare-toggle{% if product.pk in compare_product_ids %} is-active{% endif %}" type="button"
+                            data-compare-product="{{ product.pk }}"
+                            data-compare-add-url="{% url 'apps:compare-add' product_id=product.pk %}"
+                            data-compare-remove-url="{% url 'apps:compare-remove' product_id=product.pk %}"
+                            data-compared="{% if product.pk in compare_product_ids %}true{% else %}false{% endif %}"
+                            aria-label="{% if product.pk in compare_product_ids %}Taqqoslashdan olib tashlash{% else %}Taqqoslashga qo‘shish{% endif %}"
+                            aria-pressed="{% if product.pk in compare_product_ids %}true{% else %}false{% endif %}">{% if product.pk in compare_product_ids %}✓{% else %}⇄{% endif %}</button>
                 </div>
                 {% if product.old_price %}<span class="old-price">{{ product.old_price|floatformat:"0g" }} so‘m</span>{% endif %}
                 <div class="detail-price" data-product-price>{{ display_price|floatformat:"0g" }} so‘m</div>

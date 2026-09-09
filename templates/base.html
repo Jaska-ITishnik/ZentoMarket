@@ -7,9 +7,11 @@
     <title>{{ page_title|default:"Zento Marketplace" }}</title>
     <link rel="icon" href="{% static 'apps/assets/img/favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'apps/assets/css/style.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body data-authenticated="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+      data-login-url="{% url 'apps:login' %}">
 {% if not compact_layout %}
     {% include "includes/topbar.html" %}
 {% endif %}

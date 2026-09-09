@@ -1,44 +1,21 @@
 {% extends "base.html" %}
-{% load static %}
-
 {% block content %}
-<main class="main">
+<main class="main" data-wishlist-page>
     <div class="container">
-        <div class="breadcrumbs">Bosh sahifa / Sevimlilar</div>
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Sevimlilar</div>
         <h1 class="page-title">Sevimli mahsulotlar</h1>
-        <div class="toolbar"><span>4 ta mahsulot</span>
-            <button class="chip">Barchasini savatga</button>
+        <div class="toolbar"{% if not products %} hidden{% endif %} data-wishlist-toolbar>
+            <span data-wishlist-page-count>{{ product_count }} ta mahsulot</span>
         </div>
-        <div class="product-grid">
-            <article class="product">
-                <div class="product-img"><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Samsung Galaxy A55 5G">
-                    <button class="heart" style="color:var(--hot)">♥</button>
-                </div>
-                <div class="product-body"><p class="product-title">Samsung Galaxy A55 5G 8/256 GB</p><span
-                        class="rating">★ 4.9 (428)</span><span class="installment">299 000 × 12 oy</span><b
-                        class="price">3 589 000 so‘m</b>
-                    <button class="cart-fab" data-cart>🛒</button>
-                </div>
-            </article>
-            <article class="product">
-                <div class="product-img"><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Sony simsiz quloqchin">
-                    <button class="heart" style="color:var(--hot)">♥</button>
-                </div>
-                <div class="product-body"><p class="product-title">Sony simsiz quloqchin ANC</p><span class="rating">★ 4.9 (814)</span><span
-                        class="installment">149 000 × 12 oy</span><b class="price">1 789 000 so‘m</b>
-                    <button class="cart-fab" data-cart>🛒</button>
-                </div>
-            </article>
-            <article class="product">
-                <div class="product-img"><img src="{% static 'apps/assets/img/product-placeholder.svg' %}" alt="Robot changyutgich">
-                    <button class="heart" style="color:var(--hot)">♥</button>
-                </div>
-                <div class="product-body"><p class="product-title">Robot changyutgich, nam tozalash</p><span
-                        class="rating">★ 4.8 (311)</span><span class="installment">199 000 × 12 oy</span><b
-                        class="price">2 389 000 so‘m</b>
-                    <button class="cart-fab" data-cart>🛒</button>
-                </div>
-            </article>
+        <div class="product-grid" data-wishlist-grid>
+            {% for product in products %}
+                {% include "includes/product_card.html" %}
+            {% endfor %}
+        </div>
+        <div class="empty-state"{% if products %} hidden{% endif %} data-wishlist-empty>
+            <h3>Sevimlilar ro‘yxati bo‘sh</h3>
+            <p>Yoqtirgan mahsulotingizdagi yurak belgisini bosing.</p>
+            <a class="btn" href="{% url 'apps:catalog' %}">Katalogga o‘tish</a>
         </div>
     </div>
 </main>

@@ -4,18 +4,25 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Sum, Value
-from django.http import Http404
+from django.db.models import Avg, Case, Count, F, IntegerField, OuterRef, Prefetch, Q, Subquery, Sum, Value, When
+from django.http import Http404, JsonResponse
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import slugify
 from django.views.generic import FormView, TemplateView
 from django.views.generic.base import View
 
+from .compare import (
+    CompareValidationError,
+    add_to_compare,
+    clear_compare,
+    get_compare_ids,
+    remove_from_compare,
+)
 from .forms import EmailAuthenticationForm, UserRegistrationForm
-from .models import Brand, Category, Order, OrderItem, Product, ProductImage, Seller
+from .models import Brand, Category, Order, OrderItem, Product, ProductImage, Seller, Wishlist
 
 
 CARD_IMAGES = Prefetch(
@@ -252,6 +259,129 @@ class ProductDetailView(TemplateView):
         return context
 
 
+class WishlistView(LoginRequiredMixin, TemplateView):
+    template_name = "wishlist.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = (
+            card_products(in_stock=False)
+            .filter(wishlist_items__user=self.request.user)
+            .order_by("-wishlist_items__created_at")
+        )
+        context.update(
+            {
+                "page_title": "Sevimlilar — Zento",
+                "active_page": "wishlist",
+                "products": products,
+                "product_count": products.count(),
+            }
+        )
+        return context
+
+
+class WishlistToggleView(LoginRequiredMixin, View):
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, pk=product_id, is_active=True)
+        item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+        if not created:
+            item.delete()
+
+        wishlist_count = Wishlist.objects.filter(user=request.user).count()
+        is_wishlisted = created
+        return JsonResponse(
+            {
+                "is_wishlisted": is_wishlisted,
+                "wishlist_count": wishlist_count,
+                "message": (
+                    "Sevimlilarga qo‘shildi"
+                    if is_wishlisted
+                    else "Sevimlilardan olib tashlandi"
+                ),
+            }
+        )
+
+
+class CompareView(TemplateView):
+    template_name = "compare.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product_ids = get_compare_ids(self.request)
+        order = Case(
+            *[When(pk=product_id, then=position) for position, product_id in enumerate(product_ids)],
+            output_field=IntegerField(),
+        )
+        products = list(
+            card_products(in_stock=False).filter(pk__in=product_ids).order_by(order)
+        ) if product_ids else []
+        context.update(
+            {
+                "page_title": "Mahsulotlarni taqqoslash — Zento",
+                "products": products,
+                "product_count": len(products),
+            }
+        )
+        return context
+
+
+class CompareAddView(View):
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, pk=product_id, is_active=True)
+        try:
+            product_ids, changed = add_to_compare(request, product)
+        except CompareValidationError as error:
+            return JsonResponse(
+                {
+                    "error": error.message,
+                    "code": error.code,
+                    "compare_count": len(get_compare_ids(request)),
+                },
+                status=400,
+            )
+        return JsonResponse(
+            {
+                "is_compared": True,
+                "changed": changed,
+                "compare_count": len(product_ids),
+                "message": (
+                    "Taqqoslashga qo‘shildi"
+                    if changed
+                    else "Mahsulot allaqachon taqqoslashda"
+                ),
+            }
+        )
+
+
+class CompareRemoveView(View):
+    def post(self, request, product_id):
+        product_ids, changed = remove_from_compare(request, product_id)
+        return JsonResponse(
+            {
+                "is_compared": False,
+                "changed": changed,
+                "compare_count": len(product_ids),
+                "message": (
+                    "Taqqoslashdan olib tashlandi"
+                    if changed
+                    else "Mahsulot taqqoslashda yo‘q"
+                ),
+            }
+        )
+
+
+class CompareClearView(View):
+    def post(self, request):
+        changed = clear_compare(request)
+        return JsonResponse(
+            {
+                "compare_count": 0,
+                "changed": changed,
+                "message": "Taqqoslash ro‘yxati tozalandi",
+            }
+        )
+
+
 class SellerDetailView(TemplateView):
     template_name = "seller.html"
 
@@ -458,6 +588,55 @@ class SearchView(TemplateView):
                 "reset_url": f"{self.request.path}?{reset_query}" if reset_query else self.request.path,
             })
         return context
+
+
+class SearchSuggestionsView(View):
+    max_results = 6
+
+    def get(self, request):
+        query = request.GET.get("q", "").strip()
+        if len(query) < 2:
+            return JsonResponse({"results": []})
+
+        products = (
+            card_products()
+            .filter(
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(sku__icontains=query)
+                | Q(brand__name__icontains=query)
+                | Q(category__name__icontains=query)
+                | Q(seller__store_name__icontains=query)
+            )
+            .annotate(
+                search_priority=Case(
+                    When(name__istartswith=query, then=Value(0)),
+                    When(name__icontains=query, then=Value(1)),
+                    default=Value(2),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("search_priority", "-average_rating", "name")[: self.max_results]
+        )
+
+        results = []
+        for product in products:
+            image = (
+                product.card_images[0].image
+                if product.card_images
+                else product.category.image
+            )
+            results.append(
+                {
+                    "name": product.name,
+                    "url": reverse("apps:product", kwargs={"slug": product.slug}),
+                    "image_url": image.url if image else "",
+                    "price": str(product.price),
+                    "category": product.category.name,
+                }
+            )
+
+        return JsonResponse({"results": results})
 
 
 class LoginPageView(LoginView):
