@@ -1,26 +1,69 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIINfQ3ynhMZJOZrVRoL0YlaFKJpJZV2dY=" crossorigin="">
+{% endblock %}
+
 {% block content %}
 <main class="main">
-    <div class="container"><h1 class="page-title">Topshirish punktlari</h1>
+    <div class="container">
+        <div class="breadcrumbs"><a href="{% url 'apps:index' %}">Bosh sahifa</a> / Topshirish punktlari</div>
+        <h1 class="page-title">Topshirish punktlari</h1>
         <div class="map-grid">
-            <aside class="point-list"><input class="field" placeholder="Hududni qidiring">
-                <div class="point"><b>Amir Temur 108</b>
-                    <p>Har kuni 09:00–21:00<br>Sinash xonasi · Qaytarish mumkin</p>
-                    <button class="btn btn-soft">Tanlash</button>
-                </div>
-                <div class="point"><b>Chilonzor 3-kvartal</b>
-                    <p>Har kuni 08:00–22:00<br>Metrodan 220 m</p>
-                    <button class="btn btn-soft">Tanlash</button>
-                </div>
-                <div class="point"><b>Buyuk Ipak Yo‘li 45</b>
-                    <p>Dush–Shan 09:00–20:00</p>
-                    <button class="btn btn-soft">Tanlash</button>
-                </div>
+            <aside class="point-list" aria-label="Topshirish punktlari ro‘yxati">
+                <form method="get" class="pickup-search">
+                    <label for="pickup-query">Hudud bo‘yicha qidirish</label>
+                    <div class="promo">
+                        <input id="pickup-query" class="field" type="search" name="q" value="{{ pickup_query }}"
+                               placeholder="Masalan, Chilonzor yoki Yunusobod">
+                        <button class="btn btn-soft" type="submit">Qidirish</button>
+                    </div>
+                </form>
+
+                {% for point in delivery_points %}
+                    <article class="point" id="pickup-point-{{ point.pk }}"
+                             data-pickup-point="{{ point.pk }}"
+                             data-name="{{ point.name }}"
+                             data-address="{{ point.address }}"
+                             data-latitude="{{ point.latitude|default_if_none:'' }}"
+                             data-longitude="{{ point.longitude|default_if_none:'' }}"
+                             data-select-url="{% url 'apps:checkout' %}?delivery_point={{ point.pk }}">
+                        <b>{{ point.name }}</b>
+                        <p>{{ point.address }}</p>
+                        {% if point.working_hours %}<p>Ish vaqti: {{ point.working_hours }}</p>{% endif %}
+                        {% if point.phone %}<p>Telefon: {{ point.phone }}</p>{% endif %}
+                        <div class="point-actions">
+                            {% if point.latitude and point.longitude %}
+                                <button class="btn btn-soft" type="button" data-show-pickup="{{ point.pk }}">
+                                    Xaritada ko‘rish
+                                </button>
+                            {% endif %}
+                            <a class="btn btn-soft" href="{% url 'apps:checkout' %}?delivery_point={{ point.pk }}">Tanlash</a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="empty-state compact-empty">
+                        <h3>Punkt topilmadi</h3>
+                        <p>Boshqa hudud yoki manzil nomini kiriting.</p>
+                    </div>
+                {% endfor %}
             </aside>
-            <div class="map">🗺 Interaktiv xarita uchun joy<br><small>Xarita integratsiyasi uchun tayyor joy</small>
+            <div class="map-wrap">
+                <div class="map" id="pickup-map"
+                     data-map-provider="{% if yandex_maps_api_key %}yandex{% else %}osm{% endif %}"
+                     aria-label="O‘zbekistondagi topshirish punktlari xaritasi"></div>
+                <p class="map-help">Marker ustiga bosib, topshirish punktini xaritadan tanlang.</p>
             </div>
         </div>
     </div>
 </main>
+{% endblock %}
+
+{% block vendor_js %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    {% if yandex_maps_api_key %}
+        <script src="https://api-maps.yandex.ru/v3/?apikey={{ yandex_maps_api_key|urlencode }}&amp;lang=ru_RU"></script>
+    {% endif %}
 {% endblock %}

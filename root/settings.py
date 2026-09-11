@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-a_00xt07#jvjauc!+7cez%vs89kbxybt08qf1kqq2d(&y8g8vl
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True").strip().lower() in {"1", "true", "yes", "on"}
+YANDEX_MAPS_API_KEY = os.getenv("YANDEX_MAPS_API_KEY", "").strip()
 
 ALLOWED_HOSTS = ["*"]
 

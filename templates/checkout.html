@@ -3,44 +3,126 @@
 {% block content %}
 <main class="main">
     <div class="container">
-        <div class="breadcrumbs">Savat / Rasmiylashtirish</div>
+        <div class="breadcrumbs"><a href="{% url 'apps:cart' %}">Savat</a> / Rasmiylashtirish</div>
         <h1 class="page-title">Buyurtmani rasmiylashtirish</h1>
-        <div class="checkout-layout">
-            <form>
-                <section class="form-section"><h2>1. Qabul qiluvchi</h2>
-                    <div class="form-grid">
-                        <div><label>Ism</label><input class="field" name="first_name" value="{{ request.user.first_name }}"></div>
-                        <div><label>Familiya</label><input class="field" name="last_name" value="{{ request.user.last_name }}"></div>
-                        <div><label>Telefon</label><input class="field" name="phone" value="{{ request.user.phone }}"></div>
-                        <div><label>Email</label><input class="field" name="email" type="email" value="{{ request.user.email }}"></div>
+
+        {% if form.non_field_errors %}
+            <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <form method="post" class="checkout-layout" data-checkout-form
+              data-courier-fee="{{ courier_fee }}" data-pickup-fee="{{ pickup_fee }}">
+            {% csrf_token %}
+            {{ form.checkout_token }}
+            <div>
+                <section class="form-section">
+                    <h2>1. Qabul qiluvchi</h2>
+                    <div class="form-grid checkout-contact-grid">
+                        <div>
+                            <label for="id_recipient_name">Qabul qiluvchi</label>
+                            <input id="id_recipient_name" class="field" value="{{ request.user.get_full_name|default:request.user.email }}" disabled>
+                        </div>
+                        <div>
+                            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+                    </div>
+                    <div>
+                        <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                        {{ form.notes.errors }}
                     </div>
                 </section>
-                <section class="form-section"><h2>2. Yetkazib berish usuli</h2><label class="seller-box"
-                                                                                      style="display:block;border-color:var(--primary)"><input
-                        type="radio" checked> <b>Topshirish punktidan olish — bepul</b><br><small>Toshkent, Amir Temur
-                    ko‘chasi 108 · Ertaga 12:00 dan</small></label><label class="seller-box"
-                                                                          style="display:block"><input type="radio"> <b>Kuryer
-                    orqali — 25 000 so‘m</b><br><small>Manzilingizga 1–2 kunda</small></label><a href="{% url 'apps:pickup' %}">Punktni
-                    xaritada o‘zgartirish →</a></section>
-                <section class="form-section"><h2>3. To‘lov usuli</h2><label class="seller-box"
-                                                                             style="display:block;border-color:var(--primary)"><input
-                        type="radio" checked> 💳 <b>Karta orqali onlayn</b></label><label class="seller-box"
-                                                                                         style="display:block"><input
-                        type="radio"> 🗓 <b>Zento Pay — 12 oyga</b></label>
-                    <div class="form-grid"><input class="field full"
-                                                  placeholder="Karta raqami: 0000 0000 0000 0000"><input class="field"
-                                                                                                         placeholder="MM/YY"><input
-                            class="field" placeholder="CVV"></div>
-                    <small>Bu frontend demo. Karta ma’lumoti saqlanmaydi va yuborilmaydi.</small></section>
-            </form>
-            <aside class="summary"><h2 style="margin-top:0">Buyurtma</h2>
-                <div class="sum-line"><span>2 ta mahsulot</span><span>5 378 000</span></div>
-                <div class="sum-line"><span>Yetkazib berish</span><span>0</span></div>
-                <div class="sum-line sum-total"><span>Jami</span><span>5 378 000 so‘m</span></div>
-                <a class="btn" href="{% url 'apps:success' %}" style="width:100%">Buyurtmani tasdiqlash</a>
-                <p style="font-size:11px;color:var(--muted)">Bosish orqali demo shartlariga rozilik bildirasiz.</p>
+
+                <section class="form-section">
+                    <h2>2. Yetkazib berish usuli</h2>
+                    <div class="choice-grid">
+                        {% for value, label in form.delivery_type.field.choices %}
+                            <label class="seller-box choice-card">
+                                <input type="radio" name="delivery_type" value="{{ value }}"
+                                       {% if form.delivery_type.value == value %}checked{% endif %}>
+                                <span>
+                                    <b>{{ label }}</b><br>
+                                    <small>{% if value == 'pickup' %}Bepul, o‘zingizga qulay punktdan oling{% else %}Manzilingizga 1–2 kunda · 25 000 so‘m{% endif %}</small>
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {{ form.delivery_type.errors }}
+
+                    <div data-delivery-panel="address">
+                        <h3>Yetkazish manzili</h3>
+                        <div class="inline-radios">
+                            {% for value, label in form.address_mode.field.choices %}
+                                <label><input type="radio" name="address_mode" value="{{ value }}"
+                                              {% if form.address_mode.value == value %}checked{% endif %}> {{ label }}</label>
+                            {% endfor %}
+                        </div>
+                        {{ form.address_mode.errors }}
+
+                        <div data-address-panel="existing">
+                            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {{ form.address.errors }}
+                            {% if not form.address.field.queryset.exists %}
+                                <small>Saqlangan manzilingiz yo‘q. “Yangi manzil”ni tanlang.</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-grid" data-address-panel="new">
+                            <div>
+                                <label for="{{ form.new_address_title.id_for_label }}">{{ form.new_address_title.label }}</label>
+                                {{ form.new_address_title }}{{ form.new_address_title.errors }}
+                            </div>
+                            <div>
+                                <label for="{{ form.new_city.id_for_label }}">{{ form.new_city.label }}</label>
+                                {{ form.new_city }}{{ form.new_city.errors }}
+                            </div>
+                            <div class="full">
+                                <label for="{{ form.new_street.id_for_label }}">{{ form.new_street.label }}</label>
+                                {{ form.new_street }}{{ form.new_street.errors }}
+                            </div>
+                            <div>
+                                <label for="{{ form.new_house_number.id_for_label }}">{{ form.new_house_number.label }}</label>
+                                {{ form.new_house_number }}{{ form.new_house_number.errors }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div data-delivery-panel="pickup">
+                        <label for="{{ form.delivery_point.id_for_label }}">{{ form.delivery_point.label }}</label>
+                        {{ form.delivery_point }}
+                        {{ form.delivery_point.errors }}
+                        <a class="text-link" href="{% url 'apps:pickup' %}">Punktlarni hudud bo‘yicha qidirish →</a>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2>3. To‘lov usuli</h2>
+                    <div class="choice-grid">
+                        {% for value, label in form.payment_type.field.choices %}
+                            <label class="seller-box choice-card">
+                                <input type="radio" name="payment_type" value="{{ value }}"
+                                       {% if form.payment_type.value == value %}checked{% endif %}>
+                                <span><b>{{ label }}</b></span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {{ form.payment_type.errors }}
+                    <small>Karta ma’lumotlari bu bosqichda so‘ralmaydi va saqlanmaydi.</small>
+                </section>
+            </div>
+
+            <aside class="summary">
+                <h2 style="margin-top:0">Buyurtma</h2>
+                <div class="sum-line"><span>Mahsulotlar ({{ cart_quantity }})</span><span>{{ cart_total|floatformat:"0g" }} so‘m</span></div>
+                <div class="sum-line"><span>Yetkazib berish</span><span data-checkout-delivery-fee>{{ delivery_fee|floatformat:"0g" }} so‘m</span></div>
+                <div class="sum-line sum-total"><span>Jami</span><span data-checkout-total data-cart-total-value="{{ cart_total }}">{{ grand_total|floatformat:"0g" }} so‘m</span></div>
+                <button class="btn" type="submit" style="width:100%">Buyurtma berish</button>
+                <p style="font-size:11px;color:var(--muted)">Summa serverdagi savat asosida hisoblanadi.</p>
             </aside>
-        </div>
+        </form>
     </div>
 </main>
 {% endblock %}

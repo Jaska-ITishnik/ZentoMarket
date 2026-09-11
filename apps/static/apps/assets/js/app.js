@@ -522,6 +522,188 @@ cartClearButton?.addEventListener('click', async () => {
     }
 });
 
+const checkoutForm = $('[data-checkout-form]');
+if (checkoutForm) {
+    const deliveryPanels = $$('[data-delivery-panel]', checkoutForm);
+    const addressPanels = $$('[data-address-panel]', checkoutForm);
+    const deliveryFeeEl = $('[data-checkout-delivery-fee]', checkoutForm);
+    const totalEl = $('[data-checkout-total]', checkoutForm);
+
+    const syncCheckout = () => {
+        const deliveryType = $('input[name="delivery_type"]:checked', checkoutForm)?.value || 'address';
+        const addressMode = $('input[name="address_mode"]:checked', checkoutForm)?.value || 'new';
+        const fee = Number(
+            deliveryType === 'pickup'
+                ? checkoutForm.dataset.pickupFee
+                : checkoutForm.dataset.courierFee
+        );
+        const cartTotal = Number(totalEl?.dataset.cartTotalValue || 0);
+
+        deliveryPanels.forEach((panel) => {
+            panel.hidden = panel.dataset.deliveryPanel !== deliveryType;
+        });
+        addressPanels.forEach((panel) => {
+            panel.hidden = panel.dataset.addressPanel !== addressMode;
+        });
+        $$('.choice-card', checkoutForm).forEach((card) => {
+            card.classList.toggle('is-selected', Boolean($('input:checked', card)));
+        });
+        if (deliveryFeeEl) deliveryFeeEl.textContent = formatMoney(fee);
+        if (totalEl) totalEl.textContent = formatMoney(cartTotal + fee);
+    };
+
+    $$('input[name="delivery_type"], input[name="address_mode"], input[name="payment_type"]', checkoutForm)
+        .forEach((input) => input.addEventListener('change', syncCheckout));
+    syncCheckout();
+}
+
+const pickupMapElement = $('#pickup-map');
+if (pickupMapElement) {
+    const pointElements = $$('[data-pickup-point]');
+    const points = pointElements.map((element) => ({
+        element,
+        id: element.dataset.pickupPoint,
+        name: element.dataset.name,
+        address: element.dataset.address,
+        latitude: Number(element.dataset.latitude),
+        longitude: Number(element.dataset.longitude),
+        selectUrl: element.dataset.selectUrl,
+    })).filter((point) => Number.isFinite(point.latitude) && Number.isFinite(point.longitude)
+        && point.latitude && point.longitude);
+
+    const activatePoint = (pointId, scrollToCard = true) => {
+        const point = $(`[data-pickup-point="${pointId}"]`);
+        if (!point) return;
+        $$('.point.is-active').forEach((item) => item.classList.remove('is-active'));
+        point.classList.add('is-active');
+        if (scrollToCard) point.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+    };
+
+    const createPopupContent = (point) => {
+        const popup = document.createElement('div');
+        popup.className = 'pickup-popup';
+        const name = document.createElement('b');
+        name.textContent = point.name;
+        const address = document.createElement('span');
+        address.textContent = point.address;
+        const select = document.createElement('a');
+        select.className = 'btn btn-soft';
+        select.href = point.selectUrl;
+        select.textContent = 'Shu punktni tanlash';
+        popup.append(name, address, select);
+        return popup;
+    };
+
+    const initLeafletPickupMap = () => {
+        if (!window.L) return;
+        pickupMapElement.replaceChildren();
+        const map = L.map(pickupMapElement, {
+            scrollWheelZoom: false,
+            maxBounds: [[36.5, 55.0], [46.5, 74.5]],
+            maxBoundsViscosity: .7,
+        }).setView([41.3775, 64.5853], 6);
+        const markerGroup = L.featureGroup().addTo(map);
+        const markers = new Map();
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+        }).addTo(map);
+
+        points.forEach((point) => {
+            const marker = L.marker([point.latitude, point.longitude])
+                .addTo(markerGroup)
+                .bindPopup(createPopupContent(point));
+            markers.set(point.id, marker);
+            marker.on('click', () => activatePoint(point.id));
+        });
+
+        if (points.length === 1) {
+            map.setView([points[0].latitude, points[0].longitude], 14);
+        } else if (points.length > 1) {
+            map.fitBounds(markerGroup.getBounds(), {padding: [28, 28], maxZoom: 8});
+        }
+
+        $$('[data-show-pickup]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const marker = markers.get(button.dataset.showPickup);
+                if (!marker) return;
+                activatePoint(button.dataset.showPickup, false);
+                map.setView(marker.getLatLng(), 15, {animate: true});
+                marker.openPopup();
+            });
+        });
+    };
+
+    const initYandexPickupMap = async () => {
+        await window.ymaps3.ready;
+        const {YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapMarker} = window.ymaps3;
+        const location = points.length === 1
+            ? {center: [points[0].longitude, points[0].latitude], zoom: 14}
+            : {bounds: [[55.9, 37.1], [73.2, 45.7]]};
+        const map = new YMap(pickupMapElement, {
+            location,
+            margin: [28, 28, 28, 28],
+            restrictMapArea: [[55.0, 36.5], [74.5, 46.5]],
+            zoomRange: {min: 5, max: 18},
+        });
+        map.addChild(new YMapDefaultSchemeLayer({}));
+        map.addChild(new YMapDefaultFeaturesLayer({zIndex: 1800}));
+        const markerData = new Map();
+
+        points.forEach((point, index) => {
+            const markerElement = document.createElement('div');
+            markerElement.className = 'yandex-pickup-marker';
+            const dot = document.createElement('button');
+            dot.className = 'yandex-pickup-dot';
+            dot.type = 'button';
+            dot.title = point.name;
+            dot.setAttribute('aria-label', `${point.name} filialini tanlash`);
+            const number = document.createElement('span');
+            number.textContent = String(index + 1);
+            dot.append(number);
+            const card = createPopupContent(point);
+            card.className = 'yandex-pickup-card';
+            card.hidden = true;
+            markerElement.append(dot, card);
+
+            const marker = new YMapMarker({
+                coordinates: [point.longitude, point.latitude],
+                zIndex: 1801,
+            }, markerElement);
+            map.addChild(marker);
+            markerData.set(point.id, {point, card});
+            dot.addEventListener('click', () => {
+                $$('.yandex-pickup-card').forEach((item) => { item.hidden = item !== card; });
+                card.hidden = false;
+                activatePoint(point.id);
+                map.setLocation({center: [point.longitude, point.latitude], zoom: 15, duration: 400});
+            });
+        });
+
+        $$('[data-show-pickup]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const marker = markerData.get(button.dataset.showPickup);
+                if (!marker) return;
+                $$('.yandex-pickup-card').forEach((item) => { item.hidden = item !== marker.card; });
+                marker.card.hidden = false;
+                activatePoint(button.dataset.showPickup, false);
+                map.setLocation({
+                    center: [marker.point.longitude, marker.point.latitude],
+                    zoom: 15,
+                    duration: 400,
+                });
+            });
+        });
+    };
+
+    if (pickupMapElement.dataset.mapProvider === 'yandex' && window.ymaps3) {
+        initYandexPickupMap().catch(initLeafletPickupMap);
+    } else {
+        initLeafletPickupMap();
+    }
+}
+
 $$('[data-qty]').forEach(g => $$('button', g).forEach(b => b.addEventListener('click', () => {
     const s = $('span', g);
     s.textContent = Math.max(1, +s.textContent + (b.dataset.step === 'up' ? 1 : -1))

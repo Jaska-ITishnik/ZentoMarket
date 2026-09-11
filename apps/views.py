@@ -1,5 +1,7 @@
+import uuid
 from decimal import Decimal, InvalidOperation
 
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -30,9 +32,26 @@ from .cart_service import (
     remove_item,
     update_item_quantity,
 )
-from .forms import EmailAuthenticationForm, UserRegistrationForm
-from .models import Brand, Category, Order, OrderItem, Product, ProductImage, Seller, Wishlist
-
+from .checkout_service import (
+    COURIER_FEE,
+    PICKUP_FEE,
+    CheckoutValidationError,
+    place_order,
+)
+from .forms import CheckoutForm, EmailAuthenticationForm, UserRegistrationForm
+from .models import (
+    Brand,
+    CartItem,
+    Category,
+    DeliveryPoint,
+    Order,
+    OrderItem,
+    Payment,
+    Product,
+    ProductImage,
+    Seller,
+    Wishlist,
+)
 
 CARD_IMAGES = Prefetch(
     "images",
@@ -207,15 +226,15 @@ class CategoryView(TemplateView):
 
         context.update(paginated_product_context(self.request, products))
         context.update({
-                "page_title": f"{category.name} — Zento",
-                "category": category,
-                "parent_category": category.parent,
-                "child_categories": children,
-                "breadcrumbs": category_breadcrumbs(category),
-                "brands": brands,
-                "filter_state": filter_state,
-                "reset_url": self.request.path,
-            })
+            "page_title": f"{category.name} — Zento",
+            "category": category,
+            "parent_category": category.parent,
+            "child_categories": children,
+            "breadcrumbs": category_breadcrumbs(category),
+            "brands": brands,
+            "filter_state": filter_state,
+            "reset_url": self.request.path,
+        })
         return context
 
 
@@ -487,9 +506,9 @@ class SellerDetailView(TemplateView):
 
     def get_seller(self):
         raw_value = (
-            self.kwargs.get("pk_or_slug")
-            or self.kwargs.get("slug")
-            or self.kwargs.get("pk")
+                self.kwargs.get("pk_or_slug")
+                or self.kwargs.get("slug")
+                or self.kwargs.get("pk")
         )
         if raw_value is None:
             raise Http404("Seller not found.")
@@ -679,14 +698,14 @@ class SearchView(TemplateView):
 
         context.update(paginated_product_context(self.request, products))
         context.update({
-                "page_title": f"{title} — Zento",
-                "search_title": title,
-                "query": query,
-                "result_count": context["product_count"],
-                "brands": brands,
-                "filter_state": filter_state,
-                "reset_url": f"{self.request.path}?{reset_query}" if reset_query else self.request.path,
-            })
+            "page_title": f"{title} — Zento",
+            "search_title": title,
+            "query": query,
+            "result_count": context["product_count"],
+            "brands": brands,
+            "filter_state": filter_state,
+            "reset_url": f"{self.request.path}?{reset_query}" if reset_query else self.request.path,
+        })
         return context
 
 
@@ -797,9 +816,121 @@ class RegisterPageView(FormView):
         return str(self.success_url)
 
 
-class CheckoutView(LoginRequiredMixin, TemplateView):
+class CheckoutView(LoginRequiredMixin, FormView):
     template_name = "checkout.html"
-    extra_context = {
-        "page_title": "Buyurtmani rasmiylashtirish — Zento",
-        "compact_layout": True,
-    }
+    form_class = CheckoutForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.method == "POST":
+            try:
+                checkout_token = uuid.UUID(request.POST.get("checkout_token", ""))
+            except (ValueError, AttributeError):
+                checkout_token = None
+            existing_order = Order.objects.filter(
+                user=request.user,
+                checkout_token=checkout_token,
+            ).first() if checkout_token else None
+            if existing_order:
+                return redirect("apps:success", order_number=existing_order.order_number)
+        if request.user.is_authenticated and not CartItem.objects.filter(cart__user=request.user).exists():
+            return redirect("apps:cart")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        default_address = self.request.user.addresses.order_by("-is_default", "id").first()
+        selected_point = DeliveryPoint.objects.filter(
+            pk=self.request.GET.get("delivery_point"), is_active=True
+        ).first() if self.request.GET.get("delivery_point", "").isdigit() else None
+        initial.update({
+            "delivery_type": (
+                Order.DeliveryType.PICKUP if selected_point else Order.DeliveryType.ADDRESS
+            ),
+            "address_mode": (
+                CheckoutForm.AddressMode.EXISTING if default_address else CheckoutForm.AddressMode.NEW
+            ),
+            "address": default_address,
+            "delivery_point": selected_point,
+            "payment_type": Order.PaymentType.CARD,
+            "phone": self.request.user.phone,
+            "new_address_title": "Uy",
+        })
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart = get_or_create_cart(self.request.user)
+        cart_items, cart_total, cart_quantity = cart_totals(cart)
+        form = context["form"]
+        delivery_type = (
+            form.data.get("delivery_type") if form.is_bound else form.initial.get("delivery_type")
+        )
+        delivery_fee = PICKUP_FEE if delivery_type == Order.DeliveryType.PICKUP else COURIER_FEE
+        context.update({
+            "page_title": "Buyurtmani rasmiylashtirish — Zento",
+            "compact_layout": True,
+            "cart_items": cart_items,
+            "cart_total": cart_total,
+            "cart_quantity": cart_quantity,
+            "courier_fee": COURIER_FEE,
+            "pickup_fee": PICKUP_FEE,
+            "delivery_fee": delivery_fee,
+            "grand_total": cart_total + delivery_fee,
+        })
+        return context
+
+    def form_valid(self, form):
+        try:
+            order, _ = place_order(self.request.user, form.cleaned_data)
+        except CheckoutValidationError as error:
+            form.add_error(None, str(error))
+            return self.form_invalid(form)
+        return redirect("apps:success", order_number=order.order_number)
+
+
+class SuccessView(LoginRequiredMixin, TemplateView):
+    template_name = "success.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = get_object_or_404(
+            Order.objects.select_related("address", "delivery_point", "payment")
+            .prefetch_related("items"),
+            user=self.request.user,
+            order_number=self.kwargs["order_number"],
+        )
+        payment_messages = {
+            Payment.Status.DEMO_PENDING: "Demo karta to‘lovi yaratildi. Haqiqiy mablag‘ yechilmaydi.",
+            Payment.Status.CASH_ON_DELIVERY: "To‘lov buyurtmani olganingizda naqd amalga oshiriladi.",
+            Payment.Status.INSTALLMENT_REVIEW: "Muddatli to‘lov arizasi tekshiruvga yuborildi.",
+        }
+        context.update({
+            "page_title": f"Buyurtma {order.order_number} — Zento",
+            "compact_layout": True,
+            "order": order,
+            "payment_message": payment_messages.get(order.payment.status, order.payment.get_status_display()),
+        })
+        return context
+
+
+class PickupView(TemplateView):
+    template_name = "pickup.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("q", "").strip()
+        points = DeliveryPoint.objects.filter(is_active=True)
+        if query:
+            points = points.filter(Q(name__icontains=query) | Q(address__icontains=query))
+        context.update({
+            "page_title": "Topshirish punktlari — Zento",
+            "delivery_points": points.order_by("name"),
+            "pickup_query": query,
+            "yandex_maps_api_key": settings.YANDEX_MAPS_API_KEY,
+        })
+        return context

@@ -27,7 +27,7 @@ Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalar
 - [ ] Kategoriya filtrlari, narx oralig'i, reyting, variant va sahifalash ishlamaydi.
 - [ ] Sevimlilar, taqqoslash va savat tugmalari faqat JavaScript demo; ma'lumot bazaga yozilmaydi.
 - [ ] Headerdagi savat/sevimlilar soni real holatdan olinmaydi.
-- [ ] Checkout formasi, yetkazish turi, punkt, to'lov va buyurtma yaratish oqimi backendga ulanmagan.
+- [ ] Checkout formasi va yetkazish tanlovi backendga ulangan; buyurtma yaratish oqimi hali ulanmagan.
 - [ ] Profil, manzillar, buyurtmalar, buyurtma tafsiloti, xabarnomalar va chat statik.
 - [ ] Sharh qoldirish, qayta xarid, buyurtmani bekor qilish/qaytarish oqimlari yo'q.
 - [ ] Parolni tiklash, kontakt murojaati va sotuvchi arizasi yuborilmaydi.
@@ -128,16 +128,20 @@ Qabul mezoni: savatdagi har bir amal bazaga yoziladi, jami summalar serverda his
 
 ## 6-dars — Checkout, yetkazib berish, to'lov va buyurtma yaratish
 
-- [ ] Checkoutga faqat autentifikatsiya va bo'sh bo'lmagan savat bilan kirishni ta'minlash.
-- [ ] `CheckoutForm` yaratib, mavjud/yangi manzil, kuryer/punkt, to'lov turi, telefon va izohni validatsiya qilish.
-- [ ] `DeliveryPoint` ma'lumotlarini `pickup.html`da bazadan chiqarish, hudud bo'yicha qidirish va punkt tanlashni qo'shish.
-- [ ] Tanlangan yetkazish turiga qarab checkout maydonlarini ko'rsatish/yashirish va yetkazish narxini qayta hisoblash.
-- [ ] Server tomonida savatni qayta tekshirib, `transaction.atomic()` ichida `Order`, `OrderItem` va `Payment` yozuvlarini yaratish.
-- [ ] Takrorlanmaydigan buyurtma raqamini generatsiya qilish.
-- [ ] Mahsulot/variant qoldig'ini xavfsiz kamaytirish va bir vaqtning o'zidagi xaridlarda oversellingni bloklash.
-- [ ] Buyurtmadan keyin savatni tozalash va aynan yaratilgan buyurtmaga tegishli success sahifasiga yo'naltirish.
-- [ ] Karta to'lovi uchun haqiqiy provaydersiz xavfsiz demo status oqimini belgilash; naqd va muddatli to'lov holatlarini alohida ko'rsatish.
-- [ ] Forma xatolari, qoldiq o'zgarishi, begona manzil/punkt va takroriy submit holatlarini test qilish.
+- [x] Checkoutga faqat autentifikatsiya va bo'sh bo'lmagan savat bilan kirishni ta'minlash.
+- [x] `CheckoutForm` yaratib, mavjud/yangi manzil, kuryer/punkt, to'lov turi, telefon va izohni validatsiya qilish.
+- [x] `DeliveryPoint` ma'lumotlarini `pickup.html`da bazadan chiqarish, hudud bo'yicha qidirish va punkt tanlashni qo'shish.
+- [x] Tanlangan yetkazish turiga qarab checkout maydonlarini ko'rsatish/yashirish va yetkazish narxini qayta hisoblash.
+
+Topshirish punkit
+Savatda maxsulot rasmi
+
+- [x] Server tomonida savatni qayta tekshirib, `transaction.atomic()` ichida `Order`, `OrderItem` va `Payment` yozuvlarini yaratish.
+- [x] Takrorlanmaydigan buyurtma raqamini generatsiya qilish.
+- [x] Mahsulot/variant qoldig'ini xavfsiz kamaytirish va bir vaqtning o'zidagi xaridlarda oversellingni bloklash.
+- [x] Buyurtmadan keyin savatni tozalash va aynan yaratilgan buyurtmaga tegishli success sahifasiga yo'naltirish.
+- [x] Karta to'lovi uchun haqiqiy provaydersiz xavfsiz demo status oqimini belgilash; naqd va muddatli to'lov holatlarini alohida ko'rsatish.
+- [x] Forma xatolari, qoldiq o'zgarishi, begona manzil/punkt va takroriy submit holatlarini test qilish.
 
 Qabul mezoni: foydalanuvchi savatdan boshlab buyurtma raqami ko'rsatilgan success sahifasigacha to'liq oqimni yakunlaydi; summa va qoldiq faqat server tomonidan ishonchli hisoblanadi.
 

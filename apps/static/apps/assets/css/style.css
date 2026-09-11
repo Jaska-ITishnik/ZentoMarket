@@ -1022,6 +1022,68 @@ button, input, select, textarea {
     gap: 14px
 }
 
+.choice-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 16px
+}
+
+.choice-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer
+}
+
+.choice-card.is-selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary)
+}
+
+.inline-radios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 14px
+}
+
+[data-delivery-panel], [data-address-panel] {
+    margin-top: 14px
+}
+
+[data-delivery-panel][hidden], [data-address-panel][hidden] {
+    display: none
+}
+
+.errorlist {
+    color: #b42318;
+    font-size: 13px;
+    list-style: none;
+    margin: 5px 0 0;
+    padding: 0
+}
+
+.form-success, .form-errors {
+    border-radius: 10px;
+    margin-bottom: 16px;
+    padding: 12px 15px
+}
+
+.form-success {
+    background: #e9f8ef;
+    color: #176b3a
+}
+
+.form-errors {
+    background: #fff0ef;
+    color: #b42318
+}
+
+.text-link {
+    display: inline-block;
+    margin-top: 10px
+}
+
 .full {
     grid-column: 1/-1
 }
@@ -1291,28 +1353,147 @@ button, input, select, textarea {
 }
 
 .map-grid {
+    align-items: start;
     display: grid;
-    grid-template-columns:350px 1fr;
-    min-height: 620px
+    gap: 16px;
+    grid-template-columns:minmax(280px, 360px) minmax(0, 1fr)
 }
 
 .point-list {
     border: 1px solid var(--line);
+    border-radius: 14px;
+    height: 480px;
+    overflow-y: auto;
     padding: 15px
 }
 
 .point {
     padding: 14px;
-    border-bottom: 1px solid var(--line)
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid transparent;
+    transition: background-color .2s ease, border-color .2s ease
+}
+
+.point.is-active {
+    background: var(--soft);
+    border-left-color: var(--primary)
+}
+
+.point p {
+    color: var(--muted);
+    margin: 6px 0
+}
+
+.pickup-search {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 2
+}
+
+.compact-empty {
+    padding: 30px 15px
+}
+
+.point-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px
+}
+
+.map-wrap {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    height: 480px;
+    min-width: 0;
+    overflow: hidden;
+    position: relative
 }
 
 .map {
-    background: radial-gradient(circle at 30% 40%, #cfe5ff 0 4%, transparent 5%), radial-gradient(circle at 68% 63%, #ff9d9d 0 3%, transparent 4%), linear-gradient(45deg, #e3eadf, #dce8f2);
-    display: grid;
-    place-items: center;
-    font-size: 22px;
+    background: #e8eee5;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    z-index: 1
+}
+
+.map-help {
+    background: rgba(255, 255, 255, .94);
+    border-radius: 8px;
+    bottom: 14px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, .12);
+    font-size: 13px;
+    left: 50%;
+    margin: 0;
+    padding: 9px 12px;
+    position: absolute;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100% - 28px);
+    z-index: 500
+}
+
+.pickup-popup b, .pickup-popup span {
+    display: block;
+    margin-bottom: 7px
+}
+
+.pickup-popup .btn {
+    color: var(--primary)
+}
+
+.yandex-pickup-marker {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transform: translate(-50%, -100%)
+}
+
+.yandex-pickup-dot {
+    align-items: center;
+    background: var(--primary);
+    border: 3px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .28);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    font-size: 12px;
     font-weight: 800;
-    color: #65736e
+    height: 34px;
+    justify-content: center;
+    transform: rotate(-45deg);
+    width: 34px
+}
+
+.yandex-pickup-dot span {
+    transform: rotate(45deg)
+}
+
+.yandex-pickup-card {
+    background: #fff;
+    border-radius: 10px;
+    bottom: 46px;
+    box-shadow: 0 5px 22px rgba(0, 0, 0, .22);
+    left: 50%;
+    min-width: 230px;
+    padding: 12px;
+    position: absolute;
+    transform: translateX(-50%)
+}
+
+.yandex-pickup-card[hidden] {
+    display: none
+}
+
+.yandex-pickup-card b, .yandex-pickup-card span {
+    display: block;
+    margin-bottom: 7px
 }
 
 @media (max-width: 980px) {
@@ -1397,7 +1578,17 @@ button, input, select, textarea {
     }
 
     .map-grid {
+        gap: 12px;
         grid-template-columns:1fr
+    }
+
+    .point-list {
+        height: 380px
+    }
+
+    .map-wrap, .map {
+        height: 340px;
+        min-height: 0
     }
 
     .map {

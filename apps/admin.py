@@ -67,15 +67,18 @@ class SellerAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ("product_name", "price", "seller")
+    readonly_fields = ("product_name", "variant_name", "sku", "price", "seller")
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("order_number", "user", "total", "status", "delivery_type", "payment_type", "created_at")
+    list_display = (
+        "order_number", "user", "total", "status", "delivery_type", "payment_type", "created_at"
+    )
     list_filter = ("status", "delivery_type", "payment_type", "created_at")
     search_fields = ("order_number", "user__email")
-    readonly_fields = ("order_number", "created_at", "updated_at")
+    readonly_fields = ("order_number", "checkout_token", "created_at", "updated_at")
+    autocomplete_fields = ("address", "delivery_point")
     inlines = (OrderItemInline,)
 
 

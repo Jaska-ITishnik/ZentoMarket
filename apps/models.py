@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -216,7 +218,12 @@ class Order(TimeStampedModel):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="orders")
     order_number = models.CharField(max_length=30, unique=True)
+    checkout_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
+    delivery_point = models.ForeignKey(
+        "DeliveryPoint", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders"
+    )
+    recipient_phone = models.CharField(max_length=30, blank=True)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     delivery_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
@@ -230,6 +237,8 @@ class OrderItem(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, related_name="order_items")
     product_name = models.CharField(max_length=255)
+    variant_name = models.CharField(max_length=120, blank=True)
+    sku = models.CharField(max_length=100, blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
 
@@ -258,11 +267,16 @@ class DeliveryPoint(TimeStampedModel):
 
 
 class Payment(TimeStampedModel):
+    class Status(models.TextChoices):
+        DEMO_PENDING = "demo_pending", "Demo karta — to‘lov kutilmoqda"
+        CASH_ON_DELIVERY = "cash_on_delivery", "Yetkazilganda naqd to‘lov"
+        INSTALLMENT_REVIEW = "installment_review", "Muddatli to‘lov tekshiruvida"
+
     order = models.OneToOneField(Order, on_delete=models.PROTECT, related_name="payment")
     provider = models.CharField(max_length=50)
     transaction_id = models.CharField(max_length=150, unique=True, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    status = models.CharField(max_length=30, default="pending")
+    status = models.CharField(max_length=30, choices=Status.choices, default=Status.DEMO_PENDING)
     paid_at = models.DateTimeField(null=True, blank=True)
 
 

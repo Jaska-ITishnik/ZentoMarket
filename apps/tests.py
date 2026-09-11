@@ -1,16 +1,19 @@
 from decimal import Decimal
 
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils.text import slugify
 
 from .models import (
+    Address,
     Brand,
     Cart,
     CartItem,
     Category,
+    DeliveryPoint,
     Order,
     OrderItem,
+    Payment,
     Product,
     ProductVariant,
     Review,
@@ -47,7 +50,11 @@ class AuthenticationFlowTests(TestCase):
             reverse("apps:login"),
             {"username": self.user.email.upper(), "password": self.password, "next": reverse("apps:checkout")},
         )
-        self.assertRedirects(response, reverse("apps:checkout"))
+        self.assertRedirects(
+            response,
+            reverse("apps:checkout"),
+            fetch_redirect_response=False,
+        )
         self.assertEqual(int(self.client.session["_auth_user_id"]), self.user.pk)
 
     def test_authenticated_user_is_redirected_away_from_login(self):
@@ -99,12 +106,16 @@ class AuthenticationFlowTests(TestCase):
             "password2": self.password,
             "next": reverse("apps:checkout"),
         })
-        self.assertRedirects(response, reverse("apps:checkout"))
+        self.assertRedirects(
+            response,
+            reverse("apps:checkout"),
+            fetch_redirect_response=False,
+        )
 
-    def test_authenticated_user_can_open_checkout(self):
+    def test_authenticated_user_with_empty_cart_is_redirected_from_checkout(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse("apps:checkout"))
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse("apps:cart"))
 
     def test_logout_accepts_post_and_returns_to_main_page(self):
         self.client.force_login(self.user)
@@ -706,3 +717,321 @@ class StorefrontTests(TestCase):
         cleared = self.client.post(reverse("apps:cart-clear"))
         self.assertTrue(cleared.json()["changed"])
         self.assertFalse(CartItem.objects.filter(cart__user=self.customer).exists())
+
+    def add_checkout_item(self):
+        self.client.force_login(self.customer)
+        self.client.post(
+            reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk})
+        )
+
+    def checkout_token(self):
+        response = self.client.get(reverse("apps:checkout"))
+        return response.context["form"]["checkout_token"].value()
+
+    def checkout_payload(self, payment_type=Order.PaymentType.CASH, **overrides):
+        payload = {
+            "checkout_token": self.checkout_token(),
+            "delivery_type": Order.DeliveryType.ADDRESS,
+            "address_mode": "new",
+            "new_address_title": "Ish",
+            "new_city": "Toshkent",
+            "new_street": "Amir Temur ko‘chasi",
+            "new_house_number": "108",
+            "payment_type": payment_type,
+            "phone": "+998 90 123 45 67",
+            "notes": "Qo‘ng‘iroq qiling",
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_checkout_requires_a_non_empty_cart_and_uses_server_totals(self):
+        self.client.force_login(self.customer)
+        self.assertRedirects(
+            self.client.get(reverse("apps:checkout")),
+            reverse("apps:cart"),
+        )
+
+        self.client.post(
+            reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk}),
+            {"quantity": 2},
+        )
+        response = self.client.get(reverse("apps:checkout"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["cart_quantity"], 2)
+        self.assertEqual(response.context["cart_total"], Decimal("1600000"))
+        self.assertEqual(response.context["delivery_fee"], Decimal("25000"))
+        self.assertEqual(response.context["grand_total"], Decimal("1625000"))
+
+    def test_checkout_validates_new_address_phone_payment_and_notes(self):
+        self.add_checkout_item()
+        url = reverse("apps:checkout")
+        checkout_token = self.checkout_token()
+        invalid = self.client.post(url, {
+            "checkout_token": checkout_token,
+            "delivery_type": Order.DeliveryType.ADDRESS,
+            "address_mode": "new",
+            "new_address_title": "",
+            "new_city": "",
+            "new_street": "",
+            "payment_type": "unknown",
+            "phone": "90 123",
+            "notes": "x" * 1001,
+        })
+
+        self.assertFormError(invalid.context["form"], "new_address_title", "Manzil nomini kiriting.")
+        self.assertFormError(invalid.context["form"], "new_city", "Shahar yoki hududni kiriting.")
+        self.assertFormError(invalid.context["form"], "new_street", "Ko‘chani kiriting.")
+        self.assertTrue(invalid.context["form"]["payment_type"].errors)
+        self.assertTrue(invalid.context["form"]["phone"].errors)
+        self.assertTrue(invalid.context["form"]["notes"].errors)
+
+        valid = self.client.post(url, {
+            "checkout_token": checkout_token,
+            "delivery_type": Order.DeliveryType.ADDRESS,
+            "address_mode": "new",
+            "new_address_title": "Ish",
+            "new_city": "Toshkent",
+            "new_street": "Amir Temur ko‘chasi",
+            "new_house_number": "108",
+            "payment_type": Order.PaymentType.CASH,
+            "phone": "+998 90 123 45 67",
+            "notes": "Qo‘ng‘iroq qiling",
+        })
+        order = Order.objects.get(user=self.customer, checkout_token=checkout_token)
+        self.assertRedirects(
+            valid,
+            reverse("apps:success", kwargs={"order_number": order.order_number}),
+        )
+        self.assertEqual(order.recipient_phone, "+998901234567")
+
+    def test_checkout_rejects_another_users_address_and_inactive_point(self):
+        self.add_checkout_item()
+        checkout_token = self.checkout_token()
+        other_user = User.objects.create_user(
+            email="other@example.com",
+            username="other",
+            password="StrongPass2026!",
+        )
+        foreign_address = Address.objects.create(
+            user=other_user,
+            title="Uy",
+            city="Toshkent",
+            street="Begona ko‘cha",
+            phone="+998901111111",
+        )
+        inactive_point = DeliveryPoint.objects.create(
+            name="Yopiq punkt",
+            address="Toshkent, Yashnobod",
+            is_active=False,
+        )
+
+        address_response = self.client.post(reverse("apps:checkout"), {
+            "checkout_token": checkout_token,
+            "delivery_type": Order.DeliveryType.ADDRESS,
+            "address_mode": "existing",
+            "address": foreign_address.pk,
+            "payment_type": Order.PaymentType.CARD,
+            "phone": "+998901234567",
+        })
+        point_response = self.client.post(reverse("apps:checkout"), {
+            "checkout_token": checkout_token,
+            "delivery_type": Order.DeliveryType.PICKUP,
+            "delivery_point": inactive_point.pk,
+            "payment_type": Order.PaymentType.CARD,
+            "phone": "+998901234567",
+        })
+
+        self.assertTrue(address_response.context["form"]["address"].errors)
+        self.assertTrue(point_response.context["form"]["delivery_point"].errors)
+
+    def test_checkout_creates_order_items_cash_payment_and_uses_current_server_price(self):
+        self.add_checkout_item()
+        cart_item = CartItem.objects.get(cart__user=self.customer)
+        cart_item.quantity = 2
+        cart_item.save(update_fields=("quantity",))
+        self.discount_product.price = Decimal("850000")
+        self.discount_product.save(update_fields=("price",))
+        payload = self.checkout_payload(payment_type=Order.PaymentType.CASH)
+
+        response = self.client.post(reverse("apps:checkout"), payload)
+
+        order = Order.objects.get(user=self.customer, checkout_token=payload["checkout_token"])
+        self.assertRedirects(
+            response,
+            reverse("apps:success", kwargs={"order_number": order.order_number}),
+        )
+        self.assertTrue(order.order_number.startswith("ZT-"))
+        self.assertEqual(order.total, Decimal("1725000"))
+        self.assertEqual(order.delivery_fee, Decimal("25000"))
+        self.assertEqual(order.items.count(), 1)
+        self.assertEqual(order.items.get().price, Decimal("850000"))
+        self.assertEqual(order.items.get().sku, self.discount_product.sku)
+        self.assertEqual(order.payment.amount, order.total)
+        self.assertEqual(order.payment.status, Payment.Status.CASH_ON_DELIVERY)
+        self.discount_product.refresh_from_db()
+        self.assertEqual(self.discount_product.stock, 8)
+        self.assertFalse(CartItem.objects.filter(cart__user=self.customer).exists())
+
+    def test_pickup_card_checkout_decrements_product_and_variant_stock(self):
+        variant = ProductVariant.objects.create(
+            product=self.discount_product,
+            name="12/256 GB",
+            sku="CHECKOUT-VARIANT",
+            extra_price=Decimal("100000"),
+            stock=4,
+        )
+        point = DeliveryPoint.objects.create(
+            name="Checkout punkti",
+            address="Toshkent, Chilonzor",
+        )
+        self.client.force_login(self.customer)
+        self.client.post(
+            reverse("apps:cart-add", kwargs={"product_id": self.discount_product.pk}),
+            {"variant_id": variant.pk, "quantity": 2},
+        )
+        payload = self.checkout_payload(
+            payment_type=Order.PaymentType.CARD,
+            delivery_type=Order.DeliveryType.PICKUP,
+            delivery_point=point.pk,
+            address_mode="",
+        )
+
+        self.client.post(reverse("apps:checkout"), payload)
+
+        order = Order.objects.get(checkout_token=payload["checkout_token"])
+        variant.refresh_from_db()
+        self.discount_product.refresh_from_db()
+        self.assertEqual(order.delivery_point, point)
+        self.assertIsNone(order.address)
+        self.assertEqual(order.delivery_fee, Decimal("0"))
+        self.assertEqual(order.total, Decimal("1800000"))
+        self.assertEqual(order.items.get().variant_name, variant.name)
+        self.assertEqual(order.items.get().sku, variant.sku)
+        self.assertEqual(order.payment.provider, "demo_card")
+        self.assertEqual(order.payment.status, Payment.Status.DEMO_PENDING)
+        self.assertEqual(variant.stock, 2)
+        self.assertEqual(self.discount_product.stock, 8)
+
+    def test_checkout_rejects_changed_stock_without_partial_writes(self):
+        self.add_checkout_item()
+        payload = self.checkout_payload()
+        self.discount_product.stock = 0
+        self.discount_product.save(update_fields=("stock",))
+
+        response = self.client.post(reverse("apps:checkout"), payload)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "faqat 0 dona qoldi")
+        self.assertFalse(Order.objects.filter(checkout_token=payload["checkout_token"]).exists())
+        self.assertFalse(Payment.objects.filter(order__user=self.customer).exists())
+        self.assertTrue(CartItem.objects.filter(cart__user=self.customer).exists())
+        self.assertFalse(Address.objects.filter(user=self.customer, title="Ish").exists())
+
+    def test_repeated_checkout_submit_returns_same_order_and_only_reduces_stock_once(self):
+        self.add_checkout_item()
+        payload = self.checkout_payload(payment_type=Order.PaymentType.INSTALLMENT)
+
+        first = self.client.post(reverse("apps:checkout"), payload)
+        second = self.client.post(reverse("apps:checkout"), payload)
+
+        order = Order.objects.get(checkout_token=payload["checkout_token"])
+        success_url = reverse("apps:success", kwargs={"order_number": order.order_number})
+        self.assertRedirects(first, success_url)
+        self.assertRedirects(second, success_url)
+        self.assertEqual(Order.objects.filter(checkout_token=payload["checkout_token"]).count(), 1)
+        self.assertEqual(order.payment.status, Payment.Status.INSTALLMENT_REVIEW)
+        self.discount_product.refresh_from_db()
+        self.assertEqual(self.discount_product.stock, 9)
+
+    def test_success_page_shows_created_order_and_blocks_other_users(self):
+        self.add_checkout_item()
+        payload = self.checkout_payload()
+        self.client.post(reverse("apps:checkout"), payload)
+        order = Order.objects.get(checkout_token=payload["checkout_token"])
+        success_url = reverse("apps:success", kwargs={"order_number": order.order_number})
+
+        response = self.client.get(success_url)
+        self.assertContains(response, order.order_number)
+        self.assertContains(response, "olganingizda naqd amalga oshiriladi")
+
+        other_user = User.objects.create_user(
+            email="success-other@example.com",
+            username="success-other",
+            password="StrongPass2026!",
+        )
+        self.client.force_login(other_user)
+        self.assertEqual(self.client.get(success_url).status_code, 404)
+
+    def test_pickup_page_reads_active_points_from_database_and_filters_by_area(self):
+        visible = DeliveryPoint.objects.create(
+            name="Chilonzor punkti",
+            address="Toshkent, Chilonzor 3-kvartal",
+            working_hours="09:00–21:00",
+        )
+        hidden = DeliveryPoint.objects.create(
+            name="Yunusobod punkti",
+            address="Toshkent, Yunusobod",
+            is_active=False,
+        )
+
+        response = self.client.get(reverse("apps:pickup"), {"q": "Chilonzor"})
+
+        self.assertContains(response, visible.name)
+        self.assertContains(response, visible.address)
+        self.assertContains(
+            response,
+            f"{reverse('apps:checkout')}?delivery_point={visible.pk}",
+        )
+        self.assertNotContains(response, hidden.name)
+
+    def test_pickup_page_exposes_coordinates_for_map_selection(self):
+        point = DeliveryPoint.objects.create(
+            name="Xaritadagi punkt",
+            address="Toshkent, Mirobod tumani",
+            latitude=Decimal("41.292438"),
+            longitude=Decimal("69.276659"),
+        )
+
+        response = self.client.get(reverse("apps:pickup"), {"q": "Mirobod"})
+
+        self.assertContains(response, f'data-pickup-point="{point.pk}"')
+        self.assertContains(response, 'data-latitude="41.292438"')
+        self.assertContains(response, 'data-longitude="69.276659"')
+        self.assertContains(response, f'data-show-pickup="{point.pk}"')
+        self.assertContains(response, "leaflet@1.9.4")
+        self.assertContains(response, 'data-map-provider="osm"')
+        content = response.content.decode()
+        self.assertLess(content.index("leaflet.js"), content.index("apps/assets/js/app.js"))
+
+    @override_settings(YANDEX_MAPS_API_KEY="test-yandex-key")
+    def test_pickup_page_uses_yandex_when_api_key_is_configured(self):
+        DeliveryPoint.objects.create(
+            name="Yandex xaritadagi punkt",
+            address="Toshkent, Yunusobod",
+            latitude=Decimal("41.366721"),
+            longitude=Decimal("69.288815"),
+        )
+
+        response = self.client.get(reverse("apps:pickup"))
+
+        self.assertContains(response, 'data-map-provider="yandex"')
+        self.assertContains(response, "api-maps.yandex.ru/v3/")
+        self.assertContains(response, "apikey=test-yandex-key")
+
+    def test_selecting_pickup_prefills_checkout_and_makes_delivery_free(self):
+        self.add_checkout_item()
+        point = DeliveryPoint.objects.create(
+            name="Amir Temur punkti",
+            address="Toshkent, Amir Temur 108",
+        )
+
+        response = self.client.get(
+            reverse("apps:checkout"),
+            {"delivery_point": point.pk},
+        )
+
+        self.assertEqual(response.context["form"].initial["delivery_type"], Order.DeliveryType.PICKUP)
+        self.assertEqual(response.context["form"].initial["delivery_point"], point)
+        self.assertEqual(response.context["delivery_fee"], Decimal("0"))
+        self.assertContains(response, 'data-delivery-panel="pickup"')
