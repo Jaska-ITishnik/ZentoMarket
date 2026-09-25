@@ -295,9 +295,28 @@ class Chat(TimeStampedModel):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name="chats")
     subject = models.CharField(max_length=200, blank=True)
 
+    class Meta:
+        ordering = ["-updated_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "seller"],
+                condition=models.Q(seller__isnull=False),
+                name="unique_customer_seller_chat",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} — {self.seller or 'Sotuvchi tanlanmagan'}"
+
 
 class ChatMessage(TimeStampedModel):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="messages")
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="sent_messages")
     text = models.TextField()
     is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+
+    def __str__(self):
+        return f"{self.sender}: {self.text[:50]}"

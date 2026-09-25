@@ -28,7 +28,8 @@ Maqsad: mavjud Django marketplace loyihasidagi barcha xaridor frontend sahifalar
 - [ ] Sevimlilar, taqqoslash va savat tugmalari faqat JavaScript demo; ma'lumot bazaga yozilmaydi.
 - [ ] Headerdagi savat/sevimlilar soni real holatdan olinmaydi.
 - [ ] Checkout formasi va yetkazish tanlovi backendga ulangan; buyurtma yaratish oqimi hali ulanmagan.
-- [ ] Profil, manzillar, buyurtmalar, buyurtma tafsiloti, xabarnomalar va chat statik.
+- [ ] Profil, manzillar, buyurtmalar, buyurtma tafsiloti va xabarnomalar statik.
+- [x] Xaridor va do‘kon egasi o‘rtasidagi real vaqtdagi one-to-one chat Django Channels orqali ishlaydi.
 - [ ] Sharh qoldirish, qayta xarid, buyurtmani bekor qilish/qaytarish oqimlari yo'q.
 - [ ] Parolni tiklash, kontakt murojaati va sotuvchi arizasi yuborilmaydi.
 - [ ] 404 sahifasi bor, lekin global `handler404` sifatida ulanmagan.
@@ -176,9 +177,9 @@ Qabul mezoni: foydalanuvchi buyurtma tarixini real ma'lumot bilan kuzatadi va fa
 - [ ] `notifications.html`ni bazadagi xabarnomalar bilan to'ldirish, bitta yoki barchasini o'qilgan qilish endpointlarini yaratish.
 - [ ] Headerdagi o'qilmagan xabarnomalar sonini real hisoblash.
 - [ ] Buyurtma yaratilishi/status o'zgarishi, sharh va qaytarish voqealarida xabarnoma yaratish service/signallarini qo'shish.
-- [ ] `chat.html`da foydalanuvchining suhbatlari va tanlangan suhbat xabarlarini bazadan chiqarish.
-- [ ] Yangi suhbat ochish va xabar yuborishni POST/AJAX orqali ishlatish; chat ownershipni tekshirish.
-- [ ] Oddiy polling orqali yangi xabarlarni olish va o'qilgan holatini yangilash.
+- [x] `chat.html`da foydalanuvchining suhbatlari va tanlangan suhbat xabarlarini bazadan chiqarish.
+- [x] Yangi suhbatni faqat xaridor ochishi, do‘kon egasi esa xaridorning birinchi xabaridan keyin javob berishini ta’minlash; chat ownershipni tekshirish.
+- [x] Django Channels WebSocket orqali yangi xabarlarni real vaqtda olish va o‘qilgan holatini yangilash.
 - [ ] `contact.html` uchun validatsiyali murojaat formasi va saqlash/email yuborish oqimini yaratish.
 - [ ] Django password reset viewlari, email template'lari va console email backend bilan parolni tiklashni to'liq ishlatish.
 - [ ] FAQ kategoriya tugmalari, klaviatura boshqaruvi va accordion accessibility holatini yakunlash.

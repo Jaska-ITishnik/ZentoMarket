@@ -2,31 +2,55 @@
 
 {% block content %}
 <main class="main">
-    <div class="container"><h1 class="page-title">Yordam va sotuvchi bilan chat</h1>
-        <div class="chat">
-            <aside class="chats"><b>Suhbatlar</b>
-                <div class="chat-contact"><b>Zento yordam xizmati</b><br><small>● Onlayn · 1 yangi xabar</small></div>
-                <div class="chat-contact"><b>Zento Electronics</b><br><small>Samsung Galaxy A55</small></div>
-                <div class="chat-contact"><b>Delivery team</b><br><small>№ ZT-108248</small></div>
+    <div class="container">
+        <h1 class="page-title">Do‘kon bilan chat</h1>
+        {% if messages %}
+            {% for message in messages %}<div class="form-alert">{{ message }}</div>{% endfor %}
+        {% endif %}
+        <div class="chat{% if not active_chat %} chat-empty{% endif %}">
+            <aside class="chats">
+                <b>Suhbatlar</b>
+                {% for chat in chats %}
+                    <a class="chat-contact{% if active_chat.pk == chat.pk %} active{% endif %}" href="{% url 'apps:chat' %}?chat={{ chat.pk }}">
+                        <b>{% if is_seller %}{{ chat.user.get_full_name|default:chat.user.email }}{% else %}{{ chat.seller.store_name }}{% endif %}</b>
+                        {% if chat.product %}<small>{{ chat.product.name }}</small>{% endif %}
+                        <small class="chat-preview">{% if chat.last_message %}{{ chat.last_message.text|truncatechars:45 }}{% else %}Yangi suhbat{% endif %}</small>
+                    </a>
+                {% empty %}
+                    <p class="empty-state compact">{% if is_seller %}Xaridorlar hali sizga yozmagan.{% else %}Do‘kon sahifasidan suhbat boshlashingiz mumkin.{% endif %}</p>
+                {% endfor %}
             </aside>
-            <section class="chat-main">
-                <header class="chat-head"><b>Madina · Marketplace administratori</b><br><small
-                        style="color:var(--green)">● Onlayn, odatda 2 daqiqada javob beradi</small></header>
-                <div class="messages">
-                    <div class="msg">Assalomu alaykum, Aziza! Buyurtmangiz bo‘yicha qanday yordam bera olaman?</div>
-                    <div class="msg me">Buyurtmam punktga qachon yetib keladi?</div>
-                    <div class="msg">№ ZT-108248 buyurtmangiz yo‘lda. Ertaga soat 12:00 dan keyin olish mumkin. Tayyor
-                        bo‘lganda xabar yuboramiz.
+            {% if active_chat %}
+                <section class="chat-main" data-chat data-chat-id="{{ active_chat.pk }}"
+                         data-current-user-id="{{ request.user.pk }}" data-socket-path="/ws/chat/{{ active_chat.pk }}/"
+                         data-fallback-url="{% url 'apps:chat-message' chat_id=active_chat.pk %}">
+                    <header class="chat-head">
+                        <b>{% if is_seller %}{{ active_chat.user.get_full_name|default:active_chat.user.email }}{% else %}{{ active_chat.seller.store_name }}{% endif %}</b><br>
+                        <small>{% if active_chat.product %}{{ active_chat.product.name }}{% else %}Xaridor va do‘kon o‘rtasidagi suhbat{% endif %}</small>
+                    </header>
+                    <div class="messages" data-chat-messages aria-live="polite">
+                        {% for message in chat_messages %}
+                            <div class="msg{% if message.sender_id == request.user.pk %} me{% endif %}" data-message-id="{{ message.pk }}">
+                                <span>{{ message.text }}</span>
+                                <time datetime="{{ message.created_at|date:'c' }}">{{ message.created_at|date:"H:i" }}</time>
+                            </div>
+                        {% empty %}
+                            <div class="chat-welcome" data-chat-empty>{% if is_seller %}Xaridor birinchi xabarni yuborgach javob berishingiz mumkin.{% else %}Savolingizni yozing. Suhbatni birinchi bo‘lib siz boshlaysiz.{% endif %}</div>
+                        {% endfor %}
                     </div>
-                    <div class="msg me">Rahmat. Olib ketish uchun nima kerak?</div>
-                    <div class="msg">Buyurtma kodi va telefon raqamingiz yetarli 😊</div>
-                </div>
-                <form class="chat-form">
-                    <button type="button" class="btn btn-outline">＋</button>
-                    <input class="field" placeholder="Xabar yozing...">
-                    <button class="btn">Yuborish</button>
-                </form>
-            </section>
+                    <form class="chat-form" data-chat-form>
+                        {% csrf_token %}
+                        <input class="field" name="text" maxlength="2000" autocomplete="off" placeholder="Xabar yozing..."
+                               aria-label="Xabar matni"{% if not can_send %} disabled{% endif %}>
+                        <button class="btn" type="submit"{% if not can_send %} disabled{% endif %}>Yuborish</button>
+                    </form>
+                    <p class="chat-error" data-chat-error{% if can_send %} hidden{% endif %}>{% if not can_send %}Do‘kon egasi xaridorning birinchi xabaridan keyin javob bera oladi.{% endif %}</p>
+                </section>
+            {% else %}
+                <section class="chat-no-selection empty-state">
+                    {% if is_seller %}Xaridor yozganda suhbat shu yerda ko‘rinadi.{% else %}Suhbat boshlash uchun mahsulot yoki do‘kon sahifasidagi “Sotuvchiga yozish” tugmasini bosing.{% endif %}
+                </section>
+            {% endif %}
         </div>
     </div>
 </main>

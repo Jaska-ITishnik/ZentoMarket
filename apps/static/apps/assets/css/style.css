@@ -1208,15 +1208,31 @@ button, input, select, textarea {
 }
 
 .chat-contact {
+    display: block;
     padding: 13px;
     background: #fff;
     border-radius: 11px;
-    margin: 9px 0
+    margin: 9px 0;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid transparent
+}
+
+.chat-contact:hover,
+.chat-contact.active {
+    border-color: var(--primary)
+}
+
+.chat-contact small,
+.chat-preview {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted)
 }
 
 .chat-main {
     display: grid;
-    grid-template-rows:auto 1fr auto
+    grid-template-rows:auto 1fr auto auto
 }
 
 .chat-head {
@@ -1237,6 +1253,20 @@ button, input, select, textarea {
     margin: 8px 0
 }
 
+.msg span {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere
+}
+
+.msg time {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+    text-align: right;
+    opacity: .7
+}
+
 .msg.me {
     margin-left: auto;
     background: var(--primary);
@@ -1252,6 +1282,45 @@ button, input, select, textarea {
 
 .chat-form input {
     flex: 1
+}
+
+.chat-error {
+    margin: 0;
+    padding: 0 14px 12px;
+    color: #b42318;
+    font-size: 13px
+}
+
+.chat-welcome,
+.chat-no-selection {
+    margin: auto;
+    max-width: 440px;
+    text-align: center;
+    color: var(--muted)
+}
+
+.chat-empty {
+    grid-template-columns:300px 1fr
+}
+
+.seller-chat-action {
+    display: inline-block;
+    margin-top: 16px
+}
+
+.seller-links {
+    display: grid;
+    gap: 8px;
+    text-align: right
+}
+
+.link-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    font: inherit;
+    cursor: pointer
 }
 
 .faq {

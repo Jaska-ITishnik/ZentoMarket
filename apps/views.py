@@ -2,6 +2,7 @@ import uuid
 from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -38,9 +39,11 @@ from .checkout_service import (
     CheckoutValidationError,
     place_order,
 )
+from .chat_service import ChatValidationError, mark_chat_read, send_chat_message, start_chat
 from .forms import CheckoutForm, EmailAuthenticationForm, UserRegistrationForm
 from .models import (
     Brand,
+    Chat,
     CartItem,
     Category,
     DeliveryPoint,
@@ -560,6 +563,87 @@ class SellerDetailView(TemplateView):
             }
         )
         return context
+
+
+class ChatView(LoginRequiredMixin, TemplateView):
+    template_name = "chat.html"
+
+    def get_queryset(self):
+        queryset = Chat.objects.filter(seller__isnull=False).select_related(
+            "user", "seller__user", "product"
+        ).prefetch_related("messages__sender")
+        if self.request.user.role == self.request.user.Role.SELLER:
+            return queryset.filter(seller__user=self.request.user)
+        return queryset.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        chats = list(self.get_queryset())
+        for chat in chats:
+            cached_messages = list(chat.messages.all())
+            chat.cached_messages = cached_messages
+            chat.last_message = cached_messages[-1] if cached_messages else None
+
+        active_chat = None
+        requested_chat_id = self.request.GET.get("chat")
+        if requested_chat_id:
+            active_chat = next(
+                (chat for chat in chats if str(chat.pk) == requested_chat_id),
+                None,
+            )
+            if active_chat is None:
+                raise Http404("Suhbat topilmadi.")
+        elif chats:
+            active_chat = chats[0]
+
+        if active_chat:
+            mark_chat_read(active_chat, self.request.user)
+
+        is_seller = self.request.user.role == self.request.user.Role.SELLER
+        seller_can_reply = bool(
+            active_chat
+            and active_chat.messages.filter(sender_id=active_chat.user_id).exists()
+        )
+        context.update({
+            "page_title": "Do‘kon bilan chat — Zento",
+            "active_page": "chat",
+            "chats": chats,
+            "active_chat": active_chat,
+            "chat_messages": active_chat.cached_messages if active_chat else [],
+            "is_seller": is_seller,
+            "can_send": bool(active_chat and (not is_seller or seller_can_reply)),
+        })
+        return context
+
+
+class ChatStartView(LoginRequiredMixin, View):
+    def post(self, request, seller_id):
+        try:
+            chat, _ = start_chat(
+                request.user,
+                seller_id,
+                request.POST.get("product_id") or None,
+            )
+        except ChatValidationError as error:
+            messages.error(request, error.message)
+            return redirect(request.META.get("HTTP_REFERER") or reverse("apps:index"))
+        return redirect(f"{reverse('apps:chat')}?chat={chat.pk}")
+
+
+class ChatMessageView(LoginRequiredMixin, View):
+    def post(self, request, chat_id):
+        try:
+            message = send_chat_message(chat_id, request.user, request.POST.get("text", ""))
+        except ChatValidationError as error:
+            status = 403 if error.code == "forbidden" else 400
+            return JsonResponse({"error": error.message, "code": error.code}, status=status)
+        return JsonResponse({
+            "id": message.pk,
+            "text": message.text,
+            "sender_id": message.sender_id,
+            "sender_name": message.sender.get_full_name() or message.sender.email,
+            "created_at": message.created_at.isoformat(),
+        }, status=201)
 
 
 def legacy_category_redirect(request):

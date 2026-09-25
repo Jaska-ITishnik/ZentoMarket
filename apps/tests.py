@@ -1,6 +1,9 @@
 from decimal import Decimal
+import asyncio
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils.text import slugify
 
@@ -10,6 +13,8 @@ from .models import (
     Cart,
     CartItem,
     Category,
+    Chat,
+    ChatMessage,
     DeliveryPoint,
     Order,
     OrderItem,
@@ -21,6 +26,8 @@ from .models import (
     User,
     Wishlist,
 )
+from .chat_service import ChatValidationError, send_chat_message
+from .consumers import ChatConsumer
 
 
 class AuthenticationFlowTests(TestCase):
@@ -1035,3 +1042,97 @@ class StorefrontTests(TestCase):
         self.assertEqual(response.context["form"].initial["delivery_point"], point)
         self.assertEqual(response.context["delivery_fee"], Decimal("0"))
         self.assertContains(response, 'data-delivery-panel="pickup"')
+
+
+class ChatFlowTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.customer = User.objects.create_user(
+            email="chat-customer@example.com",
+            username="chat-customer",
+            password="StrongPass2026!",
+        )
+        cls.other_customer = User.objects.create_user(
+            email="chat-other@example.com",
+            username="chat-other",
+            password="StrongPass2026!",
+        )
+        cls.seller_user = User.objects.create_user(
+            email="chat-seller@example.com",
+            username="chat-seller",
+            password="StrongPass2026!",
+            role=User.Role.SELLER,
+        )
+        cls.seller = Seller.objects.create(
+            user=cls.seller_user,
+            store_name="Chat Store",
+        )
+
+    def test_chat_page_requires_login(self):
+        response = self.client.get(reverse("apps:chat"))
+        self.assertRedirects(response, f"{reverse('apps:login')}?next={reverse('apps:chat')}")
+
+    def test_customer_starts_only_one_chat_with_a_store(self):
+        self.client.force_login(self.customer)
+        url = reverse("apps:chat-start", kwargs={"seller_id": self.seller.pk})
+
+        first = self.client.post(url)
+        second = self.client.post(url)
+
+        chat = Chat.objects.get(user=self.customer, seller=self.seller)
+        self.assertRedirects(first, f"{reverse('apps:chat')}?chat={chat.pk}")
+        self.assertRedirects(second, f"{reverse('apps:chat')}?chat={chat.pk}")
+        self.assertEqual(Chat.objects.filter(user=self.customer, seller=self.seller).count(), 1)
+
+    def test_seller_cannot_start_chat(self):
+        self.client.force_login(self.seller_user)
+        self.client.post(reverse("apps:chat-start", kwargs={"seller_id": self.seller.pk}))
+        self.assertFalse(Chat.objects.exists())
+
+    def test_seller_must_wait_for_customer_first_message(self):
+        chat = Chat.objects.create(user=self.customer, seller=self.seller)
+
+        with self.assertRaisesMessage(ChatValidationError, "xaridorning birinchi xabaridan"):
+            send_chat_message(chat.pk, self.seller_user, "Salom")
+
+        customer_message = send_chat_message(chat.pk, self.customer, "Mahsulot mavjudmi?")
+        seller_message = send_chat_message(chat.pk, self.seller_user, "Ha, mavjud.")
+        self.assertEqual(customer_message.sender, self.customer)
+        self.assertEqual(seller_message.sender, self.seller_user)
+
+    def test_outsider_cannot_view_or_send_to_chat(self):
+        chat = Chat.objects.create(user=self.customer, seller=self.seller)
+        self.client.force_login(self.other_customer)
+
+        self.assertEqual(self.client.get(reverse("apps:chat"), {"chat": chat.pk}).status_code, 404)
+        response = self.client.post(
+            reverse("apps:chat-message", kwargs={"chat_id": chat.pk}),
+            {"text": "Begona xabar"},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(ChatMessage.objects.exists())
+
+
+class ChatWebsocketTests(SimpleTestCase):
+    def test_websocket_delivers_customer_message_to_both_participants(self):
+        async def scenario():
+            payload = {
+                "type": "message", "id": 1, "text": "Assalomu alaykum",
+                "sender_id": 10, "sender_name": "Xaridor",
+                "created_at": "2026-09-25T12:00:00+05:00", "time": "12:00",
+            }
+            consumer = ChatConsumer()
+            consumer.group_name = "chat_1"
+            consumer.channel_layer = SimpleNamespace(group_send=AsyncMock())
+            consumer._create_message = AsyncMock(return_value=payload)
+            consumer.send_json = AsyncMock()
+
+            await consumer.receive_json({"type": "message", "text": "Assalomu alaykum"})
+            consumer.channel_layer.group_send.assert_awaited_once_with(
+                "chat_1",
+                {"type": "chat.message", "payload": payload},
+            )
+            await consumer.chat_message({"payload": payload})
+            consumer.send_json.assert_awaited_once_with(payload)
+
+        asyncio.run(scenario())

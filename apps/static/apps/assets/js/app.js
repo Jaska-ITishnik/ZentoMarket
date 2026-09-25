@@ -709,17 +709,95 @@ $$('[data-qty]').forEach(g => $$('button', g).forEach(b => b.addEventListener('c
     s.textContent = Math.max(1, +s.textContent + (b.dataset.step === 'up' ? 1 : -1))
 }))); 
 $$('.faq button').forEach(b => b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
-$('.chat-form')?.addEventListener('submit', e => {
-    e.preventDefault();
-    const i = $('input', e.currentTarget);
-    if (!i.value.trim()) return;
-    const d = document.createElement('div');
-    d.className = 'msg me';
-    d.textContent = i.value;
-    $('.messages').append(d);
-    i.value = '';
-    $('.messages').scrollTop = $('.messages').scrollHeight
-});
+const chatRoot = $('[data-chat]');
+if (chatRoot) {
+    const form = $('[data-chat-form]', chatRoot);
+    const input = $('input[name="text"]', form);
+    const submitButton = $('button[type="submit"]', form);
+    const messages = $('[data-chat-messages]', chatRoot);
+    const errorBox = $('[data-chat-error]', chatRoot);
+    const currentUserId = Number(chatRoot.dataset.currentUserId);
+    const socketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${socketProtocol}://${window.location.host}${chatRoot.dataset.socketPath}`);
+
+    const showChatError = (message = '') => {
+        errorBox.textContent = message;
+        errorBox.hidden = !message;
+    };
+
+    const appendMessage = (data) => {
+        if ($(`[data-message-id="${data.id}"]`, messages)) return;
+        $('[data-chat-empty]', messages)?.remove();
+        const item = document.createElement('div');
+        item.className = `msg${Number(data.sender_id) === currentUserId ? ' me' : ''}`;
+        item.dataset.messageId = data.id;
+        const text = document.createElement('span');
+        text.textContent = data.text;
+        const time = document.createElement('time');
+        time.dateTime = data.created_at || '';
+        time.textContent = data.time || new Date(data.created_at).toLocaleTimeString('uz-UZ', {hour: '2-digit', minute: '2-digit'});
+        item.append(text, time);
+        messages.append(item);
+        messages.scrollTop = messages.scrollHeight;
+        if (Number(data.sender_id) !== currentUserId && input.disabled) {
+            input.disabled = false;
+            submitButton.disabled = false;
+            showChatError();
+        }
+    };
+
+    socket.addEventListener('message', event => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'error') {
+            showChatError(data.message || 'Xabar yuborilmadi.');
+            return;
+        }
+        appendMessage(data);
+        showChatError();
+    });
+    socket.addEventListener('error', () => showChatError('Jonli aloqa uzildi. Xabar HTTP orqali yuboriladi.'));
+
+    const sendFallback = async (text) => {
+        const payload = new URLSearchParams({text});
+        const response = await fetch(chatRoot.dataset.fallbackUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': $('meta[name="csrf-token"]')?.content || '',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: payload,
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Xabar yuborilmadi.');
+        appendMessage(data);
+    };
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        input.disabled = true;
+        submitButton.disabled = true;
+        try {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({type: 'message', text}));
+            } else {
+                await sendFallback(text);
+            }
+            input.value = '';
+            showChatError();
+        } catch (error) {
+            showChatError(error.message);
+        } finally {
+            input.disabled = false;
+            submitButton.disabled = false;
+            input.focus();
+        }
+    });
+    messages.scrollTop = messages.scrollHeight;
+}
 $('.catalog-btn')?.addEventListener('click', () => toast('Kategoriyalar menyusi — frontend demo'));
 
 function toast(t) {

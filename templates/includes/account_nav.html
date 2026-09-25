@@ -5,7 +5,7 @@
     <a{% if active_page == "addresses" %} class="active"{% endif %} href="{% url 'apps:addresses' %}">📍 Manzillar</a>
     <a{% if active_page == "notifications" %} class="active"{% endif %} href="{% url 'apps:notifications' %}">🔔
         Xabarnomalar</a>
-    <a{% if active_page == "chat" %} class="active"{% endif %} href="{% url 'apps:chat' %}">💬 Yordam chat</a>
+    <a{% if active_page == "chat" %} class="active"{% endif %} href="{% url 'apps:chat' %}">💬 Do‘kon bilan chat</a>
     <a href="#">⚙ Shaxsiy ma’lumotlar</a>
     <form action="{% url 'apps:logout' %}" method="post">
         {% csrf_token %}
